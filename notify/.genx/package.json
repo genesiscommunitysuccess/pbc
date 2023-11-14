@@ -1,0 +1,21 @@
+{
+  "name": "genesis-notify-pbc",
+  "description": "Genesis Notify PBC",
+  "version": "1.0.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "genxSeedConfig": {
+    "persistAnswers": true,
+    "processFiles": {
+      "interpolateVariables": {
+        "enabled": true,
+        "include": [
+          ".kt",
+          ".md"
+        ]
+      }
+    }
+  }
+}
