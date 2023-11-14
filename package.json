@@ -3,21 +3,5 @@
   "description": "Genesis PBC",
   "version": "1.0.0",
   "private": true,
-  "license": "SEE LICENSE IN LICENSE",
-  "workspaces": [
-    "notify/*"
-  ],
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "scripts": {
-    "release": "semantic-release"
-  },
-  "devDependencies": {
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "conventional-changelog-conventionalcommits": "^6.1.0",
-    "semantic-release": "^21.0.7",
-    "semver": "^7.5.4"
-  }
+  "license": "SEE LICENSE IN LICENSE"
 }

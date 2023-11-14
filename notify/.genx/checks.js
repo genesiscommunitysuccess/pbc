@@ -1,5 +1,5 @@
 const { existsSync } = require('node:fs');
-const { loadPropertiesFile, loadJsonFile, semver } = require('../../.utils/utils');
+const { loadPropertiesFile, semver } = require('./utils');
 
 module.exports = [
   {
@@ -8,13 +8,13 @@ module.exports = [
   },
   {
     name: 'UI version is within range',
-    handler: (data) => {
-      const json = loadJsonFile(`${data.directory}/client/package.json`);
+    handler: (data, { editJSONFile }) => {
+      const json = editJSONFile(`${data.directory}/client/package.json`, { autosave: false });
       const fuiVersion = json.get('dependencies.@genesislcap/foundation-ui');
       if (!fuiVersion) {
         throw new Error(`'@genesislcap/foundation-ui' must exist in the target project's dependencies.`);
       }
-      return semver.satisfies(fuiVersion, '14.x || >=15.0.0');
+      return semver.satisfies(fuiVersion, '14.x');
     }
   },
   {

@@ -10,10 +10,6 @@ const addUIDependency = ({ directory }, { editJSONFile }, name, version) => {
   });
 };
 
-const loadJsonFile = (path, options = { autosave: false }) => {
-  return editJSONFile(path, options);
-};
-
 const loadPropertiesFile = (path) => {
   const contents = readFileSync(path, 'utf-8');
   return contents.split('\n')
@@ -25,11 +21,11 @@ const loadPropertiesFile = (path) => {
     }, {});
 }
 
-const handleCheckStatus = (check, success) => {
+const handleCheckStatus = (check, success, error) => {
   if (success) {
     console.log(`Pre-requisite check successful: ${check.name}`);
   } else {
-    console.error(`Pre-requisite check failed: ${check.name}`);
+    console.error(`Pre-requisite check failed: ${check.name}.`, error?.message);
   }
 
   if (!success) {
@@ -37,13 +33,13 @@ const handleCheckStatus = (check, success) => {
   }
 }
 
-const runPreRequisiteChecks = (data, checks) => checks.every(check => {
+const runPreRequisiteChecks = (data, checks, utils) => checks.every(check => {
   let success = false;
 
   try {
-    success = check.handler(data);
+    success = check.handler(data, utils);
   } catch (e) {
-    handleCheckStatus(check, success);
+    handleCheckStatus(check, success, e);
   }
 
   handleCheckStatus(check, success);
@@ -53,7 +49,6 @@ const runPreRequisiteChecks = (data, checks) => checks.every(check => {
 module.exports = {
   addUIDependency,
   loadPropertiesFile,
-  loadJsonFile,
   runPreRequisiteChecks,
   semver
 };

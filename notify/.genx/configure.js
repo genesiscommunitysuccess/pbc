@@ -1,11 +1,11 @@
-const { addUIDependency, runPreRequisiteChecks } = require('../../.utils/utils');
+const { addUIDependency, runPreRequisiteChecks } = require('./utils');
 const checks = require('./checks');
 
 module.exports = async (data, utils) => {
   /**
    * Run checks on project
    */
-  runPreRequisiteChecks(data, checks);
+  runPreRequisiteChecks(data, checks, utils);
   /**
    * TODO: Sort out what can move to pbc repo in genesislcap, and if all these are required.
    * TODO: Version targeting.
