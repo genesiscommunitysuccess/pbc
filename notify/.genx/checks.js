@@ -33,10 +33,10 @@ module.exports = [
     handler: (data) => !existsSync(`${data.directory}/dummy.kts`)
   },
   {
-    name: 'GSF version is 6.7.0',
+    name: 'GSF version is within range',
     handler: (data) => {
       const props = loadPropertiesFile(`${data.directory}/server/jvm/gradle.properties`);
-      return props.genesisVersion === '6.7.0';
+      return semver.gt(props.genesisVersion, '6.7.0');
     }
   },
   {
