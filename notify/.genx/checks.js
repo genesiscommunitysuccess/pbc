@@ -1,6 +1,9 @@
 const { existsSync } = require('node:fs');
 const { loadPropertiesFile, semver } = require('./utils');
 
+/**
+ * TODO: Add check for clean working directory. Not sure the seeds are init'd with a git setup for tracking. 
+ */
 module.exports = [
   {
     name: 'Client folder exists',
