@@ -5,6 +5,6 @@ module.exports = {
 > Followed by \`sample command 2\`
 `
   }),
-  prompts: () => () => {},
+  prompts: () => require('./prompts'),
   configure: () => require('./configure'),
 };
