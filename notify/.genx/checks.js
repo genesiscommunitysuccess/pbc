@@ -12,7 +12,7 @@ module.exports = [
   {
     name: 'UI version is within range',
     handler: (data, { editJSONFile }) => {
-      const json = editJSONFile(`${data.directory}/client/package.json`, { autosave: false });
+      const json = editJSONFile(`${data.directory}/client/package.json`);
       const fuiVersion = json.get('dependencies.@genesislcap/foundation-ui');
       if (!fuiVersion) {
         throw new Error(`'@genesislcap/foundation-ui' must exist in the target project's dependencies.`);

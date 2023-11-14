@@ -1,7 +1,12 @@
+const { resolve } = require('node:path');
 const { addUIDependency, runPreRequisiteChecks } = require('./utils');
 const checks = require('./checks');
 
 module.exports = async (data, utils) => {
+  const { editJSONFile } = utils;
+  const json = editJSONFile(resolve(__dirname, './package.json'));
+  data.notifyVersion = json.get('version');
+  data.date = Date();
   /**
    * Run checks on project
    */
