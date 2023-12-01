@@ -1,6 +1,6 @@
 const { resolve } = require('node:path');
-const { addUIDependency, addServerDependency, runPreRequisiteChecks } = require('./utils');
-const checks = require('./checks');
+const { addUIDependency, addServerDependency, runPreRequisiteChecks, runAsync } = require('./utils');
+
 const versions = require('./versions.json');
 
 module.exports = async (data, utils) => {
@@ -8,9 +8,14 @@ module.exports = async (data, utils) => {
   const json = editJSONFile(resolve(__dirname, './package.json'));
   data.notifyVersion = json.get('version');
   data.date = Date();
+
+  // Workaround for Genx not executing NPM install on add (only init)
+  await runAsync(__dirname, 'npm install', { prefixCommandWithNode: false });
+
   /**
    * Run checks on project
    */
+  const checks = require('./checks');
   runPreRequisiteChecks(data, checks, utils);
   /**
    * TODO: Sort out what can move to pbc repo in genesislcap, and if all these are required.

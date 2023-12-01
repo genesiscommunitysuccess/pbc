@@ -1,5 +1,6 @@
 const { readFileSync } = require('node:fs');
 const { addServerDependency } = require('./server');
+const { runAsync } = require('./child-process');
 const semver  = require('semver');
 
 const addUIDependency = ({ directory }, { editJSONFile }, name, version) => {
@@ -53,4 +54,5 @@ module.exports = {
   runPreRequisiteChecks,
   semver,
   addServerDependency,
+  runAsync,
 };
