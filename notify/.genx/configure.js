@@ -1,6 +1,7 @@
 const { resolve } = require('node:path');
-const { addUIDependency, runPreRequisiteChecks } = require('./utils');
+const { addUIDependency, addServerDependency, runPreRequisiteChecks } = require('./utils');
 const checks = require('./checks');
+const versions = require('./versions.json');
 
 module.exports = async (data, utils) => {
   const { editJSONFile } = utils;
@@ -16,9 +17,11 @@ module.exports = async (data, utils) => {
    * TODO: Version targeting.
    */
   if (data.addAlerts) {
-    addUIDependency(data, utils, '@genesislcap/foundation-alerts', 'latest');
+    addUIDependency(data, utils, '@genesislcap/foundation-alerts', versions.dependencies.foundationAlerts);
   }
-  addUIDependency(data, utils, '@genesislcap/foundation-inbox', 'latest');
-  addUIDependency(data, utils, '@genesislcap/foundation-notifications', 'latest');
-  addUIDependency(data, utils, '@genesislcap/foundation-notification-dashboard', 'latest');
+  addUIDependency(data, utils, '@genesislcap/foundation-inbox', versions.dependencies.foundationInbox);
+  addUIDependency(data, utils, '@genesislcap/foundation-notifications', versions.dependencies.foundationNotifications);
+  addUIDependency(data, utils, '@genesislcap/foundation-notification-dashboard', versions.dependencies.foundationNotificationDashboard);
+
+  addServerDependency(data, 'depId', versions.dependencies.serverDepId);
 };
