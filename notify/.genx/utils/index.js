@@ -1,7 +1,5 @@
 const { readFileSync } = require('node:fs');
 const { addServerDependency } = require('./server');
-const { runAsync } = require('./child-process');
-const semver  = require('semver');
 
 const addUIDependency = ({ directory }, { editJSONFile }, name, version) => {
   // https://www.npmjs.com/package/edit-json-file
@@ -48,11 +46,16 @@ const runPreRequisiteChecks = (data, checks, utils) => checks.every(check => {
   return success;
 });
 
+const checkMajorversion = (required, actual) => {
+  const [major1] = required.split('.');
+  const [major2] = actual.split('.');
+  return major1 === major2;
+}
+
 module.exports = {
   addUIDependency,
   loadPropertiesFile,
   runPreRequisiteChecks,
-  semver,
   addServerDependency,
-  runAsync,
+  checkMajorversion,
 };

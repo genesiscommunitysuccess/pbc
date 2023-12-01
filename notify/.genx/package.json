@@ -31,9 +31,7 @@
       }
     }
   },
-  "dependencies": {
-    "semver": "^7.5.4"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/genesiscommunitysuccess/pbc.git",

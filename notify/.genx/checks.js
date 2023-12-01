@@ -1,5 +1,5 @@
 const { existsSync } = require('node:fs');
-const { loadPropertiesFile, semver } = require('./utils');
+const { loadPropertiesFile, checkMajorversion } = require('./utils');
 const versions = require('./versions.json');
 
 /**
@@ -18,7 +18,7 @@ module.exports = [
       if (!fuiVersion) {
         throw new Error(`'@genesislcap/foundation-ui' must exist in the target project's dependencies.`);
       }
-      return semver.satisfies(fuiVersion, versions.prerequisites.foundationUI);
+      return checkMajorversion(fuiVersion, versions.prerequisites.foundationUI);
     }
   },
   {
@@ -33,7 +33,7 @@ module.exports = [
     name: 'GSF version is within range',
     handler: (data) => {
       const props = loadPropertiesFile(`${data.directory}/server/gradle.properties`);
-      return semver.satisfies(props.genesisVersion, versions.prerequisites.gsf);
+      return checkMajorversion(props.genesisVersion, versions.prerequisites.gsf);
     }
   }
 ];
