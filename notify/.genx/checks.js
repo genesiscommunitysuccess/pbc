@@ -1,5 +1,6 @@
 const { existsSync } = require('node:fs');
-const { loadPropertiesFile, semver } = require('./utils');
+const { loadPropertiesFile, checkMajorversion } = require('./utils');
+const versions = require('./versions.json');
 
 /**
  * TODO: Add check for clean working directory. Not sure the seeds are init'd with a git setup for tracking. 
@@ -17,7 +18,7 @@ module.exports = [
       if (!fuiVersion) {
         throw new Error(`'@genesislcap/foundation-ui' must exist in the target project's dependencies.`);
       }
-      return semver.satisfies(fuiVersion, '14.x');
+      return checkMajorversion(fuiVersion, versions.prerequisites.foundationUI);
     }
   },
   {
@@ -29,18 +30,10 @@ module.exports = [
     handler: (data) => existsSync(`${data.directory}/build.gradle.kts`)
   },
   {
-    name: 'dummy.kts does not exist',
-    handler: (data) => !existsSync(`${data.directory}/dummy.kts`)
-  },
-  {
     name: 'GSF version is within range',
     handler: (data) => {
-      const props = loadPropertiesFile(`${data.directory}/server/jvm/gradle.properties`);
-      return semver.gt(props.genesisVersion, '6.7.0');
+      const props = loadPropertiesFile(`${data.directory}/server/gradle.properties`);
+      return checkMajorversion(props.genesisVersion, versions.prerequisites.gsf);
     }
-  },
-  {
-    name: 'Application did not have potentially clashing add-on `some-clashing-seed` applied',
-    handler: (data) => !(data.additions || []).find(a => a.name === 'some-clashing-seed')
-  },
+  }
 ];
