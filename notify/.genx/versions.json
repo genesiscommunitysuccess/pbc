@@ -8,7 +8,7 @@
     "foundationInbox": "14.x",
     "foundationNotifications": "14.x",
     "foundationNotificationDashboard": "14.x",
-    "serverDepId": "7.1.0-SNAPSHOT",
-    "webDepId": "0.0.9"
+    "serverDepId": "7.1.0",
+    "webDepId": "1.0.0"
   }
 }
