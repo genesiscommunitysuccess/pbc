@@ -6,7 +6,7 @@ const versions = require('./versions.json');
 module.exports = async (data, utils) => {
   const { editJSONFile } = utils;
   const json = editJSONFile(resolve(__dirname, './package.json'));
-  data.notifyVersion = json.get('version');
+  data.pbcVersion = json.get('version');
   data.date = Date();
   /**
    * Run checks on project
@@ -21,7 +21,7 @@ module.exports = async (data, utils) => {
   }
   addUIDependency(data, utils, '@genesislcap/foundation-inbox', versions.dependencies.foundationInbox);
   addUIDependency(data, utils, '@genesislcap/foundation-notifications', versions.dependencies.foundationNotifications);
-  addUIDependency(data, utils, '@genesislcap/foundation-notification-dashboard', versions.dependencies.foundationNotificationDashboard);
+  addUIDependency(data, utils, '@genesislcap/pbc-notify', versions.dependencies.pbcNotify);
 
   addServerDependency(data, 'depId', versions.dependencies.serverDepId);
 };

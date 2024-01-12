@@ -3,6 +3,7 @@
 This repo holds Genesis PBC Metadata &amp; Configurations.
 
 * `notify`: [Genesis Notify PBC](./notify/README.md).
+* `reporting`: [Genesis Reporting PBC](./reporting/README.md).
 
 # License
 

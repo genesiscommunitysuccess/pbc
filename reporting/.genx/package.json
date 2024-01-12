@@ -1,6 +1,6 @@
 {
-  "name": "@genesiscommunitysuccess/pbc-notify",
-  "description": "Genesis Notify PBC",
+  "name": "@genesiscommunitysuccess/pbc-reporting",
+  "description": "Genesis Reporting PBC",
   "version": "1.0.0",
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
@@ -35,6 +35,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/genesiscommunitysuccess/pbc.git",
-    "directory": "notify/.genx"
+    "directory": "reporting/.genx"
   }
 }
