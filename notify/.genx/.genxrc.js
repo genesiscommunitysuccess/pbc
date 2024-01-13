@@ -1,8 +1,13 @@
 module.exports = {
   details: () => ({
     nextStepsMessage: `
-> Run \`sample command\` to get started.
-> Followed by \`sample command 2\`
+Genesis Notify PBC has been added successfully 🎉
+
+> Go into the (web) client directory with \`cd client\`
+
+> Install the PBC dependencies with \`npm run bootstrap\`
+
+> Start the development server with \`npm run dev\`
 `
   }),
   prompts: () => require('./prompts'),
