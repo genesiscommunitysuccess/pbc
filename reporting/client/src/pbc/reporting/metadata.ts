@@ -8,11 +8,11 @@ export const metadata: AppMetadata = {
   description: 'Genesis Reporting PBC',
   version: '1.0.0',
   prerequisites: {
-    '@genesislcap/foundation-ui': '14.x',
+    '@genesislcap/foundation-ui': '14.127.6-pbc-demo.3',
     gsf: '7.1.0-SNAPSHOT',
   },
   dependencies: {
-    '@genesislcap/pbc-reporting': '1.x',
+    '@genesislcap/pbc-reporting': '1.0.0',
     serverDepId: '7.1.0-SNAPSHOT',
   },
 };
