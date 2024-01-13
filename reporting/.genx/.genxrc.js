@@ -10,5 +10,6 @@ Genesis Reporting PBC has been added successfully 🎉
 > Start the development server with \`npm run dev\`
 `
   }),
+  prompts: () => () => {},
   configure: () => require('./configure'),
 };
