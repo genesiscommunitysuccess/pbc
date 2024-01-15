@@ -1,6 +1,6 @@
 {
   "prerequisites": {
-    "foundationUI": "14.127.6-pbc-demo.3",
+    "foundationUI": "14.127.6-pbc-demo.4",
     "gsf": "7.1.0-SNAPSHOT"
   },
   "dependencies": {

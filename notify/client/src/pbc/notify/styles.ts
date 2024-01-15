@@ -35,14 +35,14 @@ export const alerts: AppStyle = {
 /**
  * @public
  */
-export const inboxCounter: AppStyle = {
-  targetId: 'layout',
+export const notificationsButton: AppStyle = {
+  targetId: 'header',
   styles: css`
     foundation-inbox-counter {
       z-index: 999;
       position: absolute;
-      top: 29px;
-      right: 0;
+      top: 10px;
+      right: -3px;
       pointer-events: none;
     }
   `,

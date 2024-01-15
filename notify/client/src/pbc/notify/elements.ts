@@ -9,13 +9,19 @@ const store = getNotifyStore();
 /**
  * @public
  */
-export const inboxCounter: AppElement = {
-  targetId: 'header',
+export const notificationsButton: AppElement = {
+  targetId: 'nav-end',
   elements: html`
-    <foundation-inbox-counter
-      slot="notifications-icon-end"
-      data-pbc-asset-id="inbox-counter"
-    ></foundation-inbox-counter>
+    <div
+      class="icon-container notifications-button"
+      part="notifications-button"
+      data-test-id="notifications-button"
+      data-pbc-asset-id="notifications-button"
+      @click=${(x, c) => c.parent.$emit('notification-icon-clicked')}
+    >
+      <zero-icon variant="regular" name="bell" part="notifications-icon"></zero-icon>
+      <foundation-inbox-counter part="notifications-inbox-counter"></foundation-inbox-counter>
+    </div>
   `,
 };
 
