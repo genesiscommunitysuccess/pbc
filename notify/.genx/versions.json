@@ -1,13 +1,13 @@
 {
   "prerequisites": {
-    "foundationUI": "14.127.6-pbc-demo.4",
+    "foundationUI": "14.134.0",
     "gsf": "7.1.0-SNAPSHOT"
   },
   "dependencies": {
     "pbcNotify": "1.0.0",
-    "foundationAlerts": "14.127.6-pbc-demo.4",
-    "foundationInbox": "14.127.6-pbc-demo.4",
-    "foundationNotifications": "14.127.6-pbc-demo.4",
+    "foundationAlerts": "14.134.0",
+    "foundationInbox": "14.134.0",
+    "foundationNotifications": "14.134.0",
     "serverDepId": "7.1.0-SNAPSHOT"
   }
 }
