@@ -1,0 +1,16 @@
+[
+  {
+    "name": "notify",
+    "versions:": [
+      {
+        "version": "1.0.0",
+        "requirements": [
+          {
+            "foundationUi": "14~",
+            "gsf": "7.1.0-SNAPSHOT"
+          }
+        ]
+      }
+    ]
+  }
+]
