@@ -4,12 +4,22 @@
     "versions": [
       {
         "version": "1.0.0",
-        "requirements": 
-          {
-            "foundationUi": "14~",
-            "gsf": "7.1.0-SNAPSHOT"
-          }
-        
+        "requirements": {
+          "foundationUi": "14~",
+          "gsf": "7.1.0-SNAPSHOT"
+        }
+      }
+    ]
+  },
+  {
+    "name": "@genesislcap/pbc-reporting-seed",
+    "versions": [
+      {
+        "version": "1.0.1",
+        "requirements": {
+          "foundationUi": "1.0.1",
+          "gsf": "7.1.0-PBC-RC16"
+        }
       }
     ]
   }
