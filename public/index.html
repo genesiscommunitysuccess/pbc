@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genesis PBC Catalog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #contents {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px;
+            min-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            background-color: #fff;
+            background: linear-gradient(to bottom, #ecf0f1, #9cd7ff);
+            color: #333;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .version {
+            font-weight: bold;
+        }
+
+        input {
+            min-width: 400px;
+            font-size: x-small;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>PBC Catalog </h1>
+
+    <div id="contents">
+
+    </div>
+
+    <script id="card-template" type="text/x-handlebars-template">
+    {{#each this}}
+        {{#each versions}}
+        <div class="card">
+            <h3>{{../name}}</h3>
+            
+                <div>
+                    <h4 class="version">Version: {{version}}</h4> 
+                    <span>Requirements</span>
+                    <ul>
+                        {{#each requirements}}
+                            <li>{{@key}}: {{this}}</li>
+                        {{/each}}
+                    </ul>
+                    
+                </div>
+
+                <div class="copy-section">
+                    <input type="text" value="genx add my-app -s {{../name}}@{{version}} --subdir {{ subdir ../name }}" id="copyInput-{{../name}}-{{@index}}" readonly />
+                    <button onclick="copyToClipboard('{{../name}}-{{@index}}')">Copy</button>
+                </div>
+                        
+            </div>
+        {{/each}}
+    {{/each}}
+  </script>
+
+    <script>
+        function copyToClipboard(idx) {
+            const copyInput = document.getElementById('copyInput-' + idx);
+            copyInput.select();
+            document.execCommand('copy');
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script>
+
+        Handlebars.registerHelper('subdir', function(str) {
+            return str.replace(/@genesislcap\/pbc-|-seed/g, '');
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('https://raw.githubusercontent.com/genesiscommunitysuccess/pbc/ferreirar/server-automation/catalog.json')
+                .then(response => response.json())
+                .then(jsonData => {
+                    const templateSource = document.getElementById('card-template').innerHTML;
+                    const template = Handlebars.compile(templateSource);
+                    const renderedHTML = template(jsonData);
+
+                    document.getElementById('contents').innerHTML = renderedHTML;
+                })
+                .catch(error => console.error('Error fetching JSON:', error));
+        });
+    </script>
+</body>
+
+</html>
