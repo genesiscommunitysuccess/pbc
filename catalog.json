@@ -4,12 +4,12 @@
     "versions": [
       {
         "version": "1.0.0",
-        "requirements": [
+        "requirements": 
           {
             "foundationUi": "14~",
             "gsf": "7.1.0-SNAPSHOT"
           }
-        ]
+        
       }
     ]
   }
