@@ -24,7 +24,7 @@
       {
         "version": "1.0.3",
         "requirements": {
-          "foundationUi": "1.0.1",
+          "foundationUi": "14~",
           "gsf": "7.1.0-PBC-RC16"
         }
       }
