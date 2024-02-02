@@ -20,6 +20,13 @@
           "foundationUi": "1.0.1",
           "gsf": "7.1.0-PBC-RC16"
         }
+      },
+      {
+        "version": "1.0.3",
+        "requirements": {
+          "foundationUi": "1.0.1",
+          "gsf": "7.1.0-PBC-RC16"
+        }
       }
     ]
   }
