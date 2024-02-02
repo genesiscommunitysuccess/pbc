@@ -84,7 +84,7 @@
                 </div>
 
                 <div class="copy-section">
-                    <input type="text" value="genx add my-app -s {{../name}}@{{version}} --subdir {{ subdir ../name }}" id="copyInput-{{../name}}-{{@index}}" readonly />
+                    <input type="text" value="genx add myapp -s {{ clean ../name}} --ref {{version}} " id="copyInput-{{../name}}-{{@index}}" readonly />
                     <button onclick="copyToClipboard('{{../name}}-{{@index}}')">Copy</button>
                 </div>
                         
@@ -104,8 +104,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
     <script>
 
-        Handlebars.registerHelper('subdir', function(str) {
-            return str.replace(/@genesislcap\/pbc-|-seed/g, '');
+        Handlebars.registerHelper('clean', function(str) {
+            return str.replace(/@/g, '');
         });
 
 
