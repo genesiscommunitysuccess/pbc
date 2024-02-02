@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: 
-      - ferreirar/server-automation
+      - main
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:

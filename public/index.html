@@ -110,7 +110,7 @@
 
 
         document.addEventListener('DOMContentLoaded', function () {
-            fetch('https://raw.githubusercontent.com/genesiscommunitysuccess/pbc/ferreirar/server-automation/catalog.json')
+            fetch('https://raw.githubusercontent.com/genesiscommunitysuccess/pbc/main/catalog.json')
                 .then(response => response.json())
                 .then(jsonData => {
                     const templateSource = document.getElementById('card-template').innerHTML;
