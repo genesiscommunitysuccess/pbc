@@ -3,13 +3,6 @@
     "name": "@genesislcap/pbc-notify-seed",
     "versions": [
       {
-        "version": "1.0.0",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.1.*"
-        }
-      },
-      {
         "version": "0.0.4",
         "requirements": {
           "foundationUi": "14.*",
