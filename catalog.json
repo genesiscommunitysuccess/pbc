@@ -36,5 +36,17 @@
         }
       }
     ]
+  },
+  {
+    "name": "@genesislcap/pbc-documents-seed",
+    "versions": [
+      {
+        "version": "",
+        "requirements": {
+          "foundationUi": "14.*",
+          "gsf": "7.*"
+        }
+      }
+    ]
   }
 ]
