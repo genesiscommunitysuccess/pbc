@@ -86,6 +86,13 @@
           "foundationUi": "14.*",
           "gsf": "7.*"
         }
+      },
+      {
+        "version": "1.0.4",
+        "requirements": {
+          "foundationUi": "14.*",
+          "gsf": "7.*"
+        }
       }
     ]
   }
