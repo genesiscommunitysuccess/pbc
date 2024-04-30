@@ -3,27 +3,6 @@
     "name": "@genesislcap/pbc-notify-seed",
     "versions": [
       {
-        "version": "0.0.4",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
-        "version": "0.0.5",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
-        "version": "0.0.7",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
         "version": "0.0.11",
         "requirements": {
           "foundationUi": "14.*",
@@ -35,27 +14,6 @@
   {
     "name": "@genesislcap/pbc-reporting-seed",
     "versions": [
-      {
-        "version": "1.0.4",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
-        "version": "1.1.1",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
-        "version": "1.1.2",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
       {
         "version": "1.2.0",
         "requirements": {
@@ -69,13 +27,6 @@
     "name": "@genesislcap/pbc-documents-seed",
     "versions": [
       {
-        "version": "",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
         "version": "1.2.0",
         "requirements": {
           "foundationUi": "14.*",
@@ -87,34 +38,6 @@
   {
     "name": "@genesislcap/pbc-auth-seed",
     "versions": [
-      {
-        "version": "",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
-        "version": "1.0.1",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
-        "version": "1.0.2",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
-      {
-        "version": "1.0.4",
-        "requirements": {
-          "foundationUi": "14.*",
-          "gsf": "7.*"
-        }
-      },
       {
         "version": "1.2.0",
         "requirements": {
@@ -128,7 +51,7 @@
     "name": "@genesislcap/pbc-fix-seed",
     "versions": [
       {
-        "version": "",
+        "version": "1.0.0",
         "requirements": {
           "foundationUi": "null",
           "gsf": "7.*"
@@ -140,7 +63,7 @@
     "name": "@genesislcap/pbc-symphony-seed",
     "versions": [
       {
-        "version": "",
+        "version": "1.0.0",
         "requirements": {
           "gsf": "7.*"
         }
