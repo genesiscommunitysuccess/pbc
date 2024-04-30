@@ -135,5 +135,16 @@
         }
       }
     ]
+  },
+  {
+    "name": "@genesislcap/pbc-symphony-seed",
+    "versions": [
+      {
+        "version": "",
+        "requirements": {
+          "gsf": "7.*"
+        }
+      }
+    ]
   }
 ]
