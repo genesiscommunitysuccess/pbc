@@ -123,5 +123,17 @@
         }
       }
     ]
+  },
+  {
+    "name": "@genesislcap/pbc-fix-seed",
+    "versions": [
+      {
+        "version": "",
+        "requirements": {
+          "foundationUi": "null",
+          "gsf": "7.*"
+        }
+      }
+    ]
   }
 ]
