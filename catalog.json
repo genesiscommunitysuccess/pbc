@@ -81,6 +81,12 @@
         "requirements": {
           "gsf": "7.*"
         }
+      },
+      {
+        "version": "1.0.1",
+        "requirements": {
+          "gsf": "7.*"
+        }
       }
     ]
   }
