@@ -91,6 +91,13 @@
           "foundationUi": "null",
           "gsf": "7.*"
         }
+      },
+      {
+        "version": "1.1.0",
+        "requirements": {
+          "foundationUi": "null",
+          "gsf": "8.*"
+        }
       }
     ]
   },
