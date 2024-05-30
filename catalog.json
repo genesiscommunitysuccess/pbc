@@ -122,6 +122,12 @@
         "requirements": {
           "gsf": "7.*"
         }
+      },
+      {
+        "version": "1.1.0",
+        "requirements": {
+          "gsf": "8.*"
+        }
       }
     ]
   }
