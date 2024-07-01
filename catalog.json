@@ -133,6 +133,13 @@
           "foundationUi": "null",
           "gsf": "8.*"
         }
+      },
+      {
+        "version": "1.2.0",
+        "requirements": {
+          "foundationUi": "null",
+          "gsf": "8.*"
+        }
       }
     ]
   },
