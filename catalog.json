@@ -163,6 +163,13 @@
           "foundationUi": "14.*",
           "gsf": "8.*"
         }
+      },
+      {
+        "version": "1.5.0",
+        "requirements": {
+          "foundationUi": "14.*",
+          "gsf": "8.*"
+        }
       }
     ]
   },
