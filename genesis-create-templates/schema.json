@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "array",
+    "title": "Genesis Create template catalog",
+    "description": "Schema to define where public Genesis Create templates can be found.",
+    "items": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The unique name of the application, required for identification. Example: 'ALM - Asset Liability Management'",
+          "minLength": 10,
+          "maxLength": 50
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the application's functionality and features. This includes information on trading features, currency movement tracking, and integrations.",
+          "minLength": 100,
+          "maxLength": 1000
+        },
+        "repo": {
+          "type": "string",
+          "description": "The repository where the application is stored, required. Example format: 'username/repository-name'",
+          "minLength": 20
+        },
+        "branch": {
+          "type": "string",
+          "description": "The branch in the repository from which the application should be fetched. Optional, defaults to 'master' if not specified.",
+          "default": "master"
+        },
+        "fileLocation": {
+          "type": "string",
+          "description": "Optional path to the configuration file within the repository.",
+          "default": ".genx/genesis-create.json"
+        }
+      },
+      "required": ["name", "repo", "description"],
+      "additionalProperties": false
+    }
+  }
+  
