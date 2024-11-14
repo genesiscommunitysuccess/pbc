@@ -5,5 +5,17 @@
         "repo": "genesiscommunitysuccess/alm-app",
         "branch": "master", 
         "fileLocation": ".genx/genesis-create.json"
-    }
+    },
+    {
+        "name": "HowTo - Kafka Pipelines",
+        "description": "This application has been designed to demonstrate how Kafka can be used to either poll OR publish to a kafka topic. Two pipelines have been constructed to demonstrate these use cases. The first pipeline is sourced by an event handler and uses the data from the event to publish to a kafka topic. The second pipeline then reads from this kafka topic and inserts it into the database. We have split these pipelines into 2 different scripts so that they can be run by 2 separate processes.",
+        "repo": "genesiscommunitysuccess/howto-kafka-pipelines",
+        "branch": "main"
+    },
+    {
+        "name": "HowTo - Permissions",
+        "description": "This application is designed to demonstrate the capabilities of the authorisation modules within Genesis. It is set up to be as simple as possible, focussing on only the authorisation elements.",
+        "repo": "genesiscommunitysuccess/howto-permissions",
+        "branch": "main"
+    } 
 ]
