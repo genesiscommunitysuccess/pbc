@@ -1,0 +1,32 @@
+name: Validate catalog schema
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - genesis-create-templates/**
+      - scripts/**
+      - .github/workflows/**
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+        
+      - name: Install Pip
+        run: python -m pip install --upgrade pip
+
+      - name: install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate catalog
+        run: python scripts/validate_catalog.py
+              
