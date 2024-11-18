@@ -2,6 +2,7 @@ import json
 import os
 import requests
 from jsonschema import validate, ValidationError
+from collections import Counter
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -22,24 +23,35 @@ def validate_schema(catalog, schema):
 
 def check_unique_names(catalog):
     names = [item['name'] for item in catalog]
-    if len(names) != len(set(names)):
-        print("Error: Duplicate names found in the catalog.")
+    names_counter = Counter(names)
+    duplicates = [name for name, count in  names_counter.items() if count > 1]
+
+    if duplicates:
+        print(f"Error: Duplicate names found in the catalog: {', '.join(duplicates)}")
         exit(1)
 
 def check_repositories(catalog):
+    failed_repos = []
+
     for item in catalog:
         repo_url = item.get('repo')
         if not repo_url:
-            print(f"Error: Missing 'repository' field in item {item}")
-            exit(1)
+            failed_repos.append(f"Missing 'repository' field in item {item}")
+            continue
         try:
             response = requests.get(f"https://github.com/{repo_url}")
             if response.status_code != 200:
-                print(f"Error: Repository '{repo_url}' not retrievable.")
-                exit(1)
+                failed_repos.append(f"Repository '{repo_url}' not retrievable.")
+                continue
         except requests.RequestException as e:
-            print(f"Error: Failed to access repository '{repo_url}': {e}")
-            exit(1)
+            failed_repos.append(f"Failed to access repository '{repo_url}': {e}")
+            continue
+
+    if failed_repos:
+        print("Error: the following repository checks failed:")
+        for error in failed_repos:
+            print(f" - {error}")
+        exit(1)
 
 def main():
     catalog = load_json(CATALOG_PATH)
