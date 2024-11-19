@@ -43,6 +43,20 @@ def check_repositories(catalog):
             if response.status_code != 200:
                 failed_repos.append(f"Repository '{repo_url}' not retrievable.")
                 continue
+
+            genesis_create_json_location = item.get('fileLocation')
+            if not genesis_create_json_location:
+                genesis_create_json_location = ".genx/genesis.create.json"
+
+            branch = item.get('branch')
+            if not branch:
+                branch = "master"
+                
+            genesis_create_json = requests.get(f"https://raw.githubusercontent.com/{repo_url}/refs/heads/{branch}/{genesis_create_json_location}")
+
+            if not genesis_create_json:
+                failed_repos.append(f"Failed to access Genesis Create Json in repository '{repo_url}'")
+
         except requests.RequestException as e:
             failed_repos.append(f"Failed to access repository '{repo_url}': {e}")
             continue
