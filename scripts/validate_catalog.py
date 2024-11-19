@@ -45,8 +45,8 @@ def check_repositories(catalog):
                 continue
 
             genesis_create_json_location = item.get('fileLocation')
-            if not genesis_create_json:
-                genesis_create_json = ".genx/genesis.create.json"
+            if not genesis_create_json_location:
+                genesis_create_json_location = ".genx/genesis.create.json"
 
             branch = item.get('branch')
             if not branch:
