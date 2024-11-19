@@ -52,7 +52,7 @@ def check_repositories(catalog):
             if not branch:
                 branch = "master"
                 
-            genesis_create_json = requests.get(f"https://raw.githubusercontent.com/{repo_url}/refs/heads/{branch}/{genesis_create_json}")
+            genesis_create_json = requests.get(f"https://raw.githubusercontent.com/{repo_url}/refs/heads/{branch}/{genesis_create_json_location}")
 
             if not genesis_create_json:
                 failed_repos.append(f"Failed to access Genesis Create Json in repository '{repo_url}'")
