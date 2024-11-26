@@ -1,7 +1,7 @@
 [
     {
         "name": "ALM - Asset Liability Management",
-        "description": "The Asset Liability Management application covers the booking, amendment and cancellation of FX Cash trades. It provides a number of common requirements and features of a typical trading space:\n\nThe application builds a currency-movement ladder from the FX Cash trades, showing aggregate movements by currency and date.\nIt consumes and displays ticking market data from a Kafka channel.\nA series of Certificates of Deposit transactions are imported from a csv feed file and added into the aggregate cash-movement ladder as data arrives or is modified.\nLoan transactions are sourced via a Rest API call and are added into the aggregate cash-movement ladder as data arrives or is modified.",
+        "description": "The Asset Liability Management application covers the booking, amendment and cancellation of FX Cash trades.",
         "repo": "genesiscommunitysuccess/alm-app",
         "branch": "master", 
         "fileLocation": ".genx/genesis.create.json"
