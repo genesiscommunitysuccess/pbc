@@ -5,5 +5,12 @@
         "repo": "genesiscommunitysuccess/alm-app",
         "branch": "master", 
         "fileLocation": ".genx/genesis.create.json"
+    },
+    {
+        "name": "OTE - Orderbook and Trade Execution",
+        "description": "Passive Order Book management and Trade Execution.",
+        "repo": "genesiscommunitysuccess/ote-app",
+        "branch": "master", 
+        "fileLocation": ".genx/genesis.create.json"
     }
 ]
