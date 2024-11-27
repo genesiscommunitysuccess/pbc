@@ -1,14 +1,14 @@
 [
     {
         "name": "ALM - Asset Liability Management",
-        "description": "The Asset Liability Management application covers the booking, amendment and cancellation of FX Cash trades.",
+        "description": "The Asset Liability Management application covers the booking, amendment and cancellation of FX Cash trades",
         "repo": "genesiscommunitysuccess/alm-app",
         "branch": "master", 
         "fileLocation": ".genx/genesis.create.json"
     },
     {
         "name": "OTE - Orderbook and Trade Execution",
-        "description": "Passive Order Book management and Trade Execution Management. Includes cash and position movement as orders are placed and variation margin calculation.",
+        "description": "Passive Order Book management and Trade Execution Management. Includes cash and position movement as orders are placed and variation margin calculation",
         "repo": "genesiscommunitysuccess/ote-app",
         "branch": "master", 
         "fileLocation": ".genx/genesis.create.json"
