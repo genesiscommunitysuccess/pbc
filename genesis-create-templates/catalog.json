@@ -8,7 +8,7 @@
     },
     {
         "name": "OTE - Orderbook and Trade Execution",
-        "description": "Passive Order Book management and Trade Execution Management. Includes cash and position movement as orders are placed and variation margin calculation",
+        "description": "Our Orders & Trade Execution (OTE) application demonstrates an order and trading venue, centred on a Passive Order Book",
         "repo": "genesiscommunitysuccess/ote-app",
         "branch": "master", 
         "fileLocation": ".genx/genesis.create.json"
