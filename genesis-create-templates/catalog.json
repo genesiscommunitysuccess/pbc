@@ -12,5 +12,26 @@
         "repo": "genesiscommunitysuccess/ote-app",
         "branch": "master", 
         "fileLocation": ".genx/genesis.create.json"
+    },
+    {
+        "name": "GGE - Gather, Group, Email",
+        "description": "A template application for gathering data via a pipeline, modifying, grouping together and emailing out",
+        "repo": "",
+        "branch": "master",
+        "fileLocation": ".genx/gge-Create-Template.json"
+    },
+    {
+        "name": "one-to-one - real-time reconciliation ",
+        "description": "A template application for providing a real-time one to one reconciliation and associated workflow capability",
+        "repo": "",
+        "branch": "master",
+        "fileLocation": ".genx/one-to-one-Create-Template.json"
+    },
+    {
+        "name": "one-to-many - real-time reconciliation ",
+        "description": "A template application for providing a real-time one to many reconciliation and associated workflow capability",
+        "repo": "",
+        "branch": "master",
+        "fileLocation": ".genx/one-to-many-Create-Template.json"
     }
 ]

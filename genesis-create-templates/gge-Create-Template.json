@@ -1,0 +1,5158 @@
+{
+  "meta": {
+    "version": "1.168.8",
+    "generated": "Fri, 17 Jan 2025 13:14:38 GMT"
+  },
+  "data": {
+    "projectName": "gge",
+    "description": "A process to auto load loan data, modify and extend it, then group by client and email.\n\nOnce the project is generated the code can be enhanced, changing joins and adding more logic to the derived fields.\nWorkflow can also be expanded as required, both in Create and in the code.\n\n////////////////////////////////////////////////////////////////////////////////////////////////\nThe following files need adjusting once built.\n\nServer (TODO comments in code file):\ngge-tables-dictionary.kts\ngge-eventhandler.kts\ngge-dataserver.kts\n\nServer (see pipeline.kts for code):\nLoanLoanDataLoadMapper.kt\n\nTransactions layout (see below for code):\ntransactions.template.ts\n\nTransaction grids (TODO comments in x.ts file for each grid):\ndocument-template.create.form.schema.ts (see TODO inside document-template.ts)\ndocument-template.update.form.schema.ts (see TODO inside document-template.ts)\nloans-ready.template.ts (see TODO inside loans-ready.ts)\nloans-deleted.template.ts (see TODO inside loans-deleted.ts)\nloans-emailed.template.ts (see TODO inside loans-emailed.ts)\nloans.ts\nloans.template.ts\nloans-ready-by-client.ts\nloans-ready-by-client.template.ts\n\n\n////////////////////////////////////////////////////////////////////////////////////////////////\nInside server/gge-app/src/main/genesis/cfg/gge-processes.xml\nGo to the <package> line and add this inside the tag:\n,global.genesis.notify.api,global.genesis.file.storage,global.genesis.file.templates,global.genesis.notify.api.service\n\n\n////////////////////////////////////////////////////////////////////////////////////////////////\nIn transactions.template.ts change the layout regions (inside the \"rapid-layout\" tags) to the below:\n     <rapid-layout-region type=\"horizontal\">\n         <rapid-layout-item title=\"Loans\">\n             <transactions-loans-manager></transactions-loans-manager>\n         </rapid-layout-item>\n       <rapid-layout-region type=\"vertical\">\n         <rapid-layout-item title=\"Loans - Ready\">\n             <transactions-loans-ready-manager></transactions-loans-ready-manager>\n         </rapid-layout-item>\n         <rapid-layout-item title=\"Loans - Ready by Client\">\n             <transactions-loans-readyby-client-manager></transactions-loans-readyby-client-manager>\n         </rapid-layout-item>\n       </rapid-layout-region>\n         <rapid-layout-region type=\"vertical\">\n         <rapid-layout-item title=\"Loans - Emailed\">\n             <transactions-loans-emailed-manager></transactions-loans-emailed-manager>\n         </rapid-layout-item>\n         <rapid-layout-item title=\"Loans - Deleted\">\n             <transactions-loans-deleted-manager></transactions-loans-deleted-manager>\n         </rapid-layout-item>\n       </rapid-layout-region>\n     </rapid-layout-region>\n\n\n////////////////////////////////////////////////////////////////////////////////////////////////\nInside the data folder, open Client.csv and change the contents to:\nCLIENT_ID,CLIENT_NAME,CLIENT_DESCRIPTION\n1,Client 1, Client Description 1\n2,Client 2, Client Description 2\n\n\n////////////////////////////////////////////////////////////////////////////////////////////////\nOpen genesis-notify.kts and add your credentials for an smtp email server\n\n\n////////////////////////////////////////////////////////////////////////////////////////////////\nCreate a file called LoanEmailTemplate.html and put the following in it.\nThen load this via the \"Document Management\" tab in the GUI.\nVia the static page add a new item to the \"Document Template\" section, choosing Report1 and the uploaded template\nFinally, add a Client email\n\n<!DOCTYPE html>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"UTF-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n        <title>Example</title>\n    </head>\n    <body>\n        <header>\n            <h1>Attention!</h1>\n            <p>Please find below example email</p>\n        </header>\n<BR><H2>Trade Details</H2><BR>\n<table>\n    <thead>\n    <tr>\n        <th>Id</th>\n        <th>Client</th>\n        <th>Deposit Amount</th>\n        <th>Deposit Ccy</th>\n        <th>Deposit Date</th>\n        <th>Deposit Rate</th>\n        <th>Maturity Amount</th>\n        <th>Maturity Date</th>\n        <th>Comment</th>\n    </tr>\n    </thead>\n    <tbody>\n    <tr th:each=\"trade : ${trades}\">\n        <td th:text=\"${trade.loanId}\"></td>\n        <td th:text=\"${trade.clientId}\"></td>\n        <td th:text=\"${trade.depositAmount}\"></td>\n        <td th:text=\"${trade.depositCcy}\"></td>\n        <td th:text=\"${trade.depositDate}\"></td>\n        <td th:text=\"${trade.depositRate}\"></td>\n        <td th:text=\"${trade.maturityAmount}\"></td>\n        <td th:text=\"${trade.maturityDate}\"></td>\n        <td th:text=\"${trade.comment}\"></td>\n    </tr>\n    </tbody>\n</table>\n</body></html>\n\n////////////////////////////////////////////////////////////////////////////////////////////////\nThe following data creates a test csv\nThese can be loaded into the system by copying to the folder called TradeData\n\nLOANS.csv\n\"LOAN_ID\",\"CLIENT_ID\",\"DEPOSIT_DATE\",\"MATURITY_DATE\",\"DEPOSIT_AMOUNT\",\"DEPOSIT_RATE\",\"DEPOSIT_CCY\",\"MATURITY_AMOUNT\"\n\"1\",\"1\",\"2024-1-24\",\"2024-7-24\",\"250000000\",\"3.5\",\"EUR\",\"254375000\"\n\"2\",\"1\",\"2024-3-20\",\"2024-9-20\",\"100000000\",\"3.25\",\"EUR\",\"101625000\"\n\"3\",\"1\",\"2024-2-20\",\"2024-8-20\",\"3500000\",\"3.05\",\"EUR\",\"3553375\"\n\"4\",\"1\",\"2024-2-14\",\"2024-8-14\",\"1500000\",\"3.05\",\"EUR\",\"1522875\"\n\"5\",\"1\",\"2024-7-3\",\"2024-7-9\",\"30000000\",\"3.05\",\"EUR\",\"30457500\"\n\"6\",\"1\",\"2024-9-2\",\"2024-9-8\",\"90000000\",\"3.1\",\"EUR\",\"91395000\"\n\"7\",\"1\",\"2024-1-16\",\"2024-7-16\",\"45000000\",\"3.05\",\"EUR\",\"45686250\"\n\"8\",\"2\",\"2024-9-3\",\"2024-9-9\",\"20000000\",\"3.05\",\"EUR\",\"20305000\"\n\"9\",\"2\",\"2024-9-1\",\"2024-9-7\",\"550000000\",\"3.6\",\"EUR\",\"559900000\"\n\"10\",\"2\",\"2024-5-14\",\"2024-9-14\",\"250000000\",\"3.5\",\"EUR\",\"254375000\"\n\"11\",\"2\",\"2024-10-2\",\"2024-10-8\",\"350000000\",\"3.5\",\"EUR\",\"356125000\"\n\"12\",\"2\",\"2024-9-4\",\"2024-9-10\",\"400000000\",\"3.55\",\"EUR\",\"407100000\"\n\"13\",\"2\",\"2024-1-15\",\"2024-7-15\",\"5000000000\",\"3.9\",\"EUR\",\"5097500000\"\n\"14\",\"2\",\"2024-11-2\",\"2024-11-8\",\"90000000\",\"3.1\",\"EUR\",\"91395000\"\n\"15\",\"2\",\"2024-4-19\",\"2024-10-19\",\"700000000\",\"3.7\",\"EUR\",\"712950000\"\n\"16\",\"1\",\"2024-12-2\",\"2024-12-8\",\"150000000\",\"3.5\",\"EUR\",\"152625000\"\n\"17\",\"1\",\"2024-3-29\",\"2024-9-29\",\"800000000\",\"3.75\",\"EUR\",\"815000000\"\n\"18\",\"1\",\"2024-3-14\",\"2024-9-14\",\"400000000\",\"3.55\",\"EUR\",\"407100000\"\n\n",
+    "components": [
+      "GenesisServerCore",
+      "EventHandlersCore",
+      "User Authorization",
+      "DataServerCore",
+      "ConsolidatorCore",
+      "DataPipelinesCore",
+      "Notifications",
+      "Reporting",
+      "Document Management"
+    ],
+    "tables": [
+      {
+        "name": "LOAN",
+        "id": 11000,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "LOAN_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "DEPOSIT_DATE",
+            "type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "MATURITY_DATE",
+            "type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "DEPOSIT_AMOUNT",
+            "nullable": false,
+            "type": "DOUBLE",
+            "max": null,
+            "min": null
+          },
+          {
+            "name": "DEPOSIT_RATE",
+            "nullable": false,
+            "type": "DOUBLE",
+            "max": null,
+            "min": null
+          },
+          {
+            "name": "DEPOSIT_CCY",
+            "type": "STRING",
+            "maxSize": 3,
+            "minSize": 3,
+            "nullable": false,
+            "defaultValue": null,
+            "pattern": null
+          },
+          {
+            "name": "MATURITY_AMOUNT",
+            "nullable": false,
+            "type": "DOUBLE",
+            "max": null,
+            "min": null
+          },
+          {
+            "name": "COMMENT",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": true,
+            "defaultValue": null,
+            "pattern": null
+          },
+          {
+            "name": "STATUS",
+            "type": "ENUM",
+            "defaultValue": "New",
+            "values": [
+              "New",
+              "Modified",
+              "Ready",
+              "Emailed",
+              "Deleted"
+            ],
+            "nullable": false
+          },
+          {
+            "name": "CLIENT_ID",
+            "nullable": false,
+            "type": "LONG",
+            "meta": {
+              "entityReferenceAttribute": "CLIENT_ID",
+              "entityReference": "CLIENT"
+            }
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "LOAN_ID"
+          }
+        ],
+        "audit": null,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "LoanUpdate",
+        "viewRight": "LoanView",
+        "realtimeQueries": [],
+        "indices": [
+          {
+            "fields": [
+              "CLIENT_ID",
+              "STATUS"
+            ],
+            "indexType": "NON_UNIQUE",
+            "name": "LOAN_BY_CLIENT_ID_STATUS",
+            "meta": {}
+          }
+        ],
+        "meta": {
+          "attrOrder": [
+            "LOAN_ID",
+            "DEPOSIT_DATE",
+            "MATURITY_DATE",
+            "DEPOSIT_AMOUNT",
+            "DEPOSIT_RATE",
+            "DEPOSIT_CCY",
+            "MATURITY_AMOUNT",
+            "COMMENT",
+            "STATUS",
+            "CLIENT_ID"
+          ]
+        },
+        "metadata": {
+          "todo": null,
+          "comment": null
+        }
+      },
+      {
+        "name": "DOCUMENT_TEMPLATE",
+        "id": 11001,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "REPORT_NUMBER"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "REPORT_NUMBER",
+            "type": "ENUM",
+            "defaultValue": "Report1",
+            "values": [
+              "Report1",
+              "Report2"
+            ],
+            "nullable": false
+          },
+          {
+            "name": "FILE_STORAGE_ID",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": false
+          },
+          {
+            "name": "MESSAGE_HEADER",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": false
+          }
+        ],
+        "generatedFields": [],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "DocumentTemplateUpdate",
+        "viewRight": "DocumentTemplateView",
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_DOCUMENT_TEMPLATES",
+            "viewRight": "DocumentTemplateView",
+            "fields": [
+              "REPORT_NUMBER",
+              "FILE_STORAGE_ID",
+              "MESSAGE_HEADER"
+            ],
+            "metadata": {
+              "todo": "Add this dataserver:\n    query(\"ALL_FILE_STORAGE\", FILE_STORAGE) {}\n"
+            }
+          }
+        ],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "REPORT_NUMBER",
+            "FILE_STORAGE_ID",
+            "MESSAGE_HEADER"
+          ]
+        }
+      },
+      {
+        "name": "CLIENT",
+        "id": 11002,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "CLIENT_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "CLIENT_NAME",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": false
+          },
+          {
+            "name": "CLIENT_DESCRIPTION",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": false
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "CLIENT_ID"
+          }
+        ],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "ClientUpdate",
+        "viewRight": "ClientView",
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_CLIENTS",
+            "viewRight": "ClientView",
+            "fields": [
+              "CLIENT_ID",
+              "CLIENT_NAME",
+              "CLIENT_DESCRIPTION"
+            ]
+          }
+        ],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "CLIENT_ID",
+            "CLIENT_NAME",
+            "CLIENT_DESCRIPTION"
+          ]
+        }
+      },
+      {
+        "name": "CLIENT_EMAIL",
+        "id": 11003,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "CLIENT_ID",
+            "EMAIL_ADDRESS"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "CLIENT_ID",
+            "nullable": false,
+            "type": "LONG",
+            "meta": {
+              "entityReferenceAttribute": "CLIENT_ID",
+              "entityReference": "CLIENT"
+            }
+          },
+          {
+            "name": "EMAIL_ADDRESS",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": false
+          },
+          {
+            "name": "EMAIL_TYPE",
+            "type": "ENUM",
+            "defaultValue": "To",
+            "values": [
+              "To",
+              "Cc",
+              "Bcc"
+            ],
+            "nullable": false
+          }
+        ],
+        "generatedFields": [],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "ClientEmailUpdate",
+        "viewRight": "ClientEmailView",
+        "realtimeQueries": [],
+        "indices": [
+          {
+            "fields": [
+              "CLIENT_ID"
+            ],
+            "indexType": "NON_UNIQUE",
+            "name": "CLIENT_EMAIL_BY_CLIENT_ID",
+            "meta": {}
+          }
+        ],
+        "meta": {
+          "attrOrder": [
+            "CLIENT_ID",
+            "EMAIL_ADDRESS",
+            "EMAIL_TYPE"
+          ]
+        },
+        "metadata": {
+          "todo": ""
+        }
+      },
+      {
+        "name": "STATUS_SUMMARY",
+        "id": 11004,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "STATUS",
+            "CLIENT_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "STATUS",
+            "type": "ENUM",
+            "defaultValue": "New",
+            "values": [
+              "New",
+              "Modified",
+              "Ready",
+              "Emailed",
+              "Deleted"
+            ],
+            "nullable": false
+          },
+          {
+            "name": "CLIENT_ID",
+            "nullable": false,
+            "type": "LONG",
+            "meta": {
+              "entityReferenceAttribute": "CLIENT_ID",
+              "entityReference": "CLIENT"
+            }
+          },
+          {
+            "name": "COUNT",
+            "nullable": false,
+            "type": "INT"
+          }
+        ],
+        "generatedFields": [],
+        "audit": false,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "StatusSummaryUpdate",
+        "viewRight": "StatusSummaryView",
+        "realtimeQueries": [],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "STATUS",
+            "CLIENT_ID",
+            "COUNT"
+          ]
+        }
+      }
+    ],
+    "eventHandlers": [
+      {
+        "entityName": "LOAN",
+        "create": {
+          "enabled": false
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true,
+          "metadata": {
+            "comment": "",
+            "todo": "Add this import to the top of the file:\nimport global.genesis.gen.dao.enums.gge.loan.Status\n\nTODO: Change the declaration to be:\n  eventHandler<Loan>(\"LOAN_DELETE\", transactional = true) {\n\nTODO: replace teh entityDb.delete with:\n      details.status = Status.Deleted\n      entityDb.modify(details)\n"
+          }
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "DOCUMENT_TEMPLATE",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "CLIENT",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "CLIENT_EMAIL",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "STATUS_SUMMARY",
+        "create": {
+          "enabled": false
+        },
+        "update": {
+          "enabled": false
+        },
+        "delete": {
+          "enabled": false
+        },
+        "type": "crud"
+      },
+      {
+        "name": "READY_FOR_EMAIL",
+        "entityName": "LOAN",
+        "type": "custom",
+        "metadata": {
+          "comment": "",
+          "todo": "Add this above \"onCommit\":\n    permissioning {\n      permissionCodes = listOf(\"LoanUpdate\")\n    }\n\nTODO: Add this after \"onCommit\":\n      val details = event.details\n      details.status = Status.Ready\n      entityDb.modify(details)\n"
+        }
+      },
+      {
+        "name": "EMAIL",
+        "entityName": "STATUS_SUMMARY",
+        "type": "custom",
+        "metadata": {
+          "comment": "",
+          "todo": "Add these imports to the top of the file:\nimport global.genesis.gen.dao.enums.gge.client_email.EmailType\nimport global.genesis.gen.dao.enums.gge.document_template.ReportNumber\nimport global.genesis.file.templates.DocumentContentConfiguration\nimport global.genesis.file.templates.DocumentGenerator\nimport global.genesis.notify.api.notifications.EmailNotification\nimport global.genesis.notify.api.notifications.EmailRecipient\nimport global.genesis.notify.api.notifications.EmailRecipientType\nimport global.genesis.notify.api.service.NotificationService\n\nTODO: Add these two line just above the eventHandler line:\n    val documentGenerator = inject<DocumentGenerator>()\n    val notifyService = inject<NotificationService>()\n\nTODO: Add this above \"onCommit\":\n    permissioning {\n      permissionCodes = listOf(\"LoanUpdate\")\n    }\n\nTODO: Add this after \"onCommit\":\n      val details = event.details\n      val trades = entityDb.getRange(Loan.byClientIdStatus(details.clientId, Status.Ready))\n      val tradeMap : Map<String, Any> = mapOf(\n        \"trades\" to trades.toList()\n      )\n\n      val docInfo = entityDb.get(DocumentTemplate.ByReportNumber(ReportNumber.Report1))\n      if (docInfo == null) {\n        LOG.info(\"Error! No document info static!\")\n        ack()\n      }\n\n      val documentResult =\n        documentGenerator.generateContent(\n          DocumentContentConfiguration(\n            templateId = docInfo!!.fileStorageId,\n            userName = \"Genesis System\",\n            data = tradeMap,\n            deleteOnExit = false,\n            workingDirectory = \"Temp\")\n        )\n\n      val emails = entityDb.getRange(ClientEmail.byClientId(details.clientId))\n      var emailList = listOf<EmailRecipient>()\n      emails.collect {\n        emailList = emailList.plus(EmailRecipient(it.emailAddress, getEmailRecipientTypeFromEmailType(it.emailType)))\n      }\n\n      val notification = EmailNotification(\n        messageBody = documentResult.rawContent,\n        messageHeader = docInfo.messageHeader,\n        recipients = emailList\n      )\n      notifyService.sendNotification(notification)\n\n      trades.collect {\n        it.status = Status.Emailed\n        entityDb.modify(it)\n      }\n\nTODO: Add this at the very end of the file, outside of the event handler:\nfun getEmailRecipientTypeFromEmailType(recipientType: EmailType): EmailRecipientType =\n  when (recipientType) {\n    EmailType.To -> EmailRecipientType.TO\n    EmailType.Cc -> EmailRecipientType.CC\n    EmailType.Bcc -> EmailRecipientType.BCC\n  }\n"
+        }
+      }
+    ],
+    "consolidators": [
+      {
+        "name": "STATUS_AGG",
+        "input": "LOAN",
+        "output": "STATUS_SUMMARY",
+        "select": {
+          "functions": [
+            {
+              "outputField": "COUNT",
+              "function": {
+                "functionType": "TABLE_FIELD_INPUT",
+                "functionName": "COUNT",
+                "value": "LOAN_ID"
+              },
+              "meta": {
+                "alias": null,
+                "attribute": "LOAN_ID"
+              }
+            }
+          ]
+        },
+        "groupBy": {
+          "input": {
+            "groupByInputType": "INDEX",
+            "fieldsMapping": [
+              {
+                "outputField": "STATUS",
+                "inputField": "STATUS",
+                "meta": {
+                  "alias": null
+                }
+              },
+              {
+                "outputField": "CLIENT_ID",
+                "inputField": "CLIENT_ID",
+                "meta": {
+                  "alias": null
+                }
+              }
+            ]
+          }
+        },
+        "meta": {
+          "functions": []
+        }
+      }
+    ],
+    "pipelines": [
+      {
+        "name": "LOAN_DATA_LOAD",
+        "flow": {
+          "sink": {
+            "type": "genesisDB",
+            "entity": "LOAN"
+          },
+          "source": {
+            "type": "file",
+            "format": "CSV",
+            "path": "LoadData",
+            "prefix": "LOAN"
+          }
+        },
+        "metadata": {
+          "todo": "As these fields will be auto set or added later, comment out the following rows in \"LoanLoanDataLoadMapper.kt\":\n//      comment = input.data[\"COMMENT\"]\n//      status = Status.valueOf(input.data.getValue(\"STATUS\"))"
+        }
+      }
+    ],
+    "ui": {
+      "config": null,
+      "routes": [
+        {
+          "name": "Transactions",
+          "layoutType": "horizontal-layout",
+          "permissions": null,
+          "tiles": [
+            {
+              "title": "Loans",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_LOANS",
+                "permissions": {
+                  "updateRight": "LoanUpdate",
+                  "viewRight": "LoanView"
+                },
+                "updateEvent": "EVENT_LOAN_MODIFY",
+                "deleteEvent": "EVENT_LOAN_DELETE",
+                "createEvent": null,
+                "customEvents": [
+                  "READY_FOR_EMAIL"
+                ],
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "LOAN_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "LOAN_ID",
+                      "displayName": "Loan Id",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "LOAN_IDID"
+                    }
+                  },
+                  {
+                    "field": "STATUS",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "STATUS",
+                      "displayName": "Status",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "STATUSID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_DATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getDateFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "en-GB",
+                        {
+                          "year": "numeric",
+                          "month": "short",
+                          "day": "2-digit",
+                          "timeZone": "UTC"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "en-GB",
+                        "year": "numeric",
+                        "month": "short",
+                        "day": "2-digit"
+                      },
+                      "attribute": "DEPOSIT_DATE",
+                      "displayName": "Deposit Date",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_DATEID"
+                    }
+                  },
+                  {
+                    "field": "MATURITY_DATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getDateFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "en-GB",
+                        {
+                          "year": "numeric",
+                          "month": "short",
+                          "day": "2-digit",
+                          "timeZone": "UTC"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "en-GB",
+                        "year": "numeric",
+                        "month": "short",
+                        "day": "2-digit"
+                      },
+                      "attribute": "MATURITY_DATE",
+                      "displayName": "Maturity Date",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "MATURITY_DATEID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_AMOUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "DEPOSIT_AMOUNT",
+                      "displayName": "Deposit Amount",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_AMOUNTID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_RATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "DEPOSIT_RATE",
+                      "displayName": "Deposit Rate",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_RATEID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_CCY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "DEPOSIT_CCY",
+                      "displayName": "Deposit Ccy",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_CCYID"
+                    }
+                  },
+                  {
+                    "field": "MATURITY_AMOUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "MATURITY_AMOUNT",
+                      "displayName": "Maturity Amount",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "MATURITY_AMOUNTID"
+                    }
+                  },
+                  {
+                    "field": "COMMENT",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COMMENT",
+                      "displayName": "Comment",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "COMMENTID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible"
+                      },
+                      "attribute": "CLIENT_ID",
+                      "displayName": "Client Id",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "CLIENT_IDID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_NAME",
+                      "displayName": "Client Name",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_DESCRIPTION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "displayName": "Client Description",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_DESCRIPTIONID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Loan Id",
+                      "scope": "#/properties/LOAN_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "LOAN_ID",
+                        "entity": "LOAN",
+                        "id": "LOAN_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "LOAN",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Date",
+                      "scope": "#/properties/DEPOSIT_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_DATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Date",
+                      "scope": "#/properties/MATURITY_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_DATE",
+                        "entity": "LOAN",
+                        "id": "MATURITY_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Amount",
+                      "scope": "#/properties/DEPOSIT_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Rate",
+                      "scope": "#/properties/DEPOSIT_RATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_RATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_RATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Ccy",
+                      "scope": "#/properties/DEPOSIT_CCY",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_CCY",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_CCYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Amount",
+                      "scope": "#/properties/MATURITY_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "MATURITY_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Comment",
+                      "scope": "#/properties/COMMENT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMMENT",
+                        "entity": "LOAN",
+                        "id": "COMMENTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_NAME"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_NAME",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "LOAN",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Loan Id",
+                      "scope": "#/properties/LOAN_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "LOAN_ID",
+                        "entity": "LOAN",
+                        "id": "LOAN_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "LOAN",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Date",
+                      "scope": "#/properties/DEPOSIT_DATE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_DATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Date",
+                      "scope": "#/properties/MATURITY_DATE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_DATE",
+                        "entity": "LOAN",
+                        "id": "MATURITY_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Amount",
+                      "scope": "#/properties/DEPOSIT_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Rate",
+                      "scope": "#/properties/DEPOSIT_RATE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_RATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_RATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Ccy",
+                      "scope": "#/properties/DEPOSIT_CCY",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_CCY",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_CCYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Amount",
+                      "scope": "#/properties/MATURITY_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "MATURITY_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Comment",
+                      "scope": "#/properties/COMMENT",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMMENT",
+                        "entity": "LOAN",
+                        "id": "COMMENTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_NAME"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_NAME",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "LOAN",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Loan",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "CLIENT_NAMEID",
+                      "attribute": "CLIENT_NAME",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CLIENT_DESCRIPTIONID",
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Description",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "LOAN_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "STATUS",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "MATURITY_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_AMOUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_RATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_CCY",
+                      "alias": null
+                    },
+                    {
+                      "name": "MATURITY_AMOUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "COMMENT",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_DESCRIPTION",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {},
+              "metadata": {
+                "todo": "After row:\n          const { ROW_REF, ...DETAILS } = rowData;\nAdd these two rows:\n          delete DETAILS['CLIENT_DESCRIPTION'];\n          delete DETAILS['CLIENT_NAME'];\n\nTODO: Replace minWidth and maxWidth rows with the following:\n      width: 120,\n\nTODO: Replace the following 3 lines:\ncontentTemplate: `\n          <rapid-icon name=\"cog\"></rapid-icon>\n        `,\n\nWith:\n      actionName: 'Ready',\n      appearance: 'primary',\n\nTODO: Inside loans.template.ts after the line:\n      resourceName=\"ALL_LOANS\"\nadd the following line:\n      :datasourceConfig=${() => ({criteria:\"STATUS =='New' || STATUS =='Modified'\"})}\n"
+              }
+            },
+            {
+              "title": "Loans - Ready",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_LOANS",
+                "permissions": {
+                  "updateRight": "LoanUpdate",
+                  "viewRight": "LoanView"
+                },
+                "updateEvent": "EVENT_LOAN_MODIFY",
+                "deleteEvent": "EVENT_LOAN_DELETE",
+                "createEvent": null,
+                "customEvents": null,
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "LOAN_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "LOAN_ID",
+                      "displayName": "Loan Id",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "LOAN_IDID"
+                    }
+                  },
+                  {
+                    "field": "STATUS",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "STATUS",
+                      "displayName": "Status",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "STATUSID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_DATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getDateFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "en-GB",
+                        {
+                          "year": "numeric",
+                          "month": "short",
+                          "day": "2-digit",
+                          "timeZone": "UTC"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "en-GB",
+                        "year": "numeric",
+                        "month": "short",
+                        "day": "2-digit"
+                      },
+                      "attribute": "DEPOSIT_DATE",
+                      "displayName": "Deposit Date",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_DATEID"
+                    }
+                  },
+                  {
+                    "field": "MATURITY_DATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getDateFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "en-GB",
+                        {
+                          "year": "numeric",
+                          "month": "short",
+                          "day": "2-digit",
+                          "timeZone": "UTC"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "en-GB",
+                        "year": "numeric",
+                        "month": "short",
+                        "day": "2-digit"
+                      },
+                      "attribute": "MATURITY_DATE",
+                      "displayName": "Maturity Date",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "MATURITY_DATEID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_AMOUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "DEPOSIT_AMOUNT",
+                      "displayName": "Deposit Amount",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_AMOUNTID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_RATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "DEPOSIT_RATE",
+                      "displayName": "Deposit Rate",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_RATEID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_CCY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "DEPOSIT_CCY",
+                      "displayName": "Deposit Ccy",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_CCYID"
+                    }
+                  },
+                  {
+                    "field": "MATURITY_AMOUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "MATURITY_AMOUNT",
+                      "displayName": "Maturity Amount",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "MATURITY_AMOUNTID"
+                    }
+                  },
+                  {
+                    "field": "COMMENT",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COMMENT",
+                      "displayName": "Comment",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "COMMENTID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_NAME",
+                      "displayName": "Client Name",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_DESCRIPTION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "displayName": "Client Description",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_DESCRIPTIONID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "CLIENT_ID",
+                      "displayName": "Client Id",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "CLIENT_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Loan Id",
+                      "scope": "#/properties/LOAN_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "LOAN_ID",
+                        "entity": "LOAN",
+                        "id": "LOAN_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "LOAN",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Date",
+                      "scope": "#/properties/DEPOSIT_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_DATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Date",
+                      "scope": "#/properties/MATURITY_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_DATE",
+                        "entity": "LOAN",
+                        "id": "MATURITY_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Amount",
+                      "scope": "#/properties/DEPOSIT_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Rate",
+                      "scope": "#/properties/DEPOSIT_RATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_RATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_RATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Ccy",
+                      "scope": "#/properties/DEPOSIT_CCY",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_CCY",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_CCYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Amount",
+                      "scope": "#/properties/MATURITY_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "MATURITY_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Comment",
+                      "scope": "#/properties/COMMENT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMMENT",
+                        "entity": "LOAN",
+                        "id": "COMMENTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_NAME"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_NAME",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "LOAN",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Loan Id",
+                      "scope": "#/properties/LOAN_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "LOAN_ID",
+                        "entity": "LOAN",
+                        "id": "LOAN_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "LOAN",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Date",
+                      "scope": "#/properties/DEPOSIT_DATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_DATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Date",
+                      "scope": "#/properties/MATURITY_DATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_DATE",
+                        "entity": "LOAN",
+                        "id": "MATURITY_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Amount",
+                      "scope": "#/properties/DEPOSIT_AMOUNT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Rate",
+                      "scope": "#/properties/DEPOSIT_RATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_RATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_RATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Ccy",
+                      "scope": "#/properties/DEPOSIT_CCY",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_CCY",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_CCYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Amount",
+                      "scope": "#/properties/MATURITY_AMOUNT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "MATURITY_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Comment",
+                      "scope": "#/properties/COMMENT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMMENT",
+                        "entity": "LOAN",
+                        "id": "COMMENTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "readonly": true,
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_NAME"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_NAME",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "LOAN",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Loan",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "CLIENT_NAMEID",
+                      "attribute": "CLIENT_NAME",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CLIENT_DESCRIPTIONID",
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Description",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "LOAN_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "STATUS",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "MATURITY_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_AMOUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_RATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_CCY",
+                      "alias": null
+                    },
+                    {
+                      "name": "MATURITY_AMOUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "COMMENT",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_DESCRIPTION",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {},
+              "metadata": {
+                "todo": "Inside loans-ready.template.ts after the line:\n      resourceName=\"ALL_LOANS\"\nadd the following line:\n      :datasourceConfig=${() => ({criteria:\"STATUS =='Ready'\"})}\n"
+              }
+            },
+            {
+              "title": "Loans - Ready by Client",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_STATUS_SUMMARYS",
+                "permissions": {
+                  "updateRight": "StatusSummaryUpdate",
+                  "viewRight": "StatusSummaryView"
+                },
+                "updateEvent": null,
+                "deleteEvent": null,
+                "createEvent": null,
+                "customEvents": [
+                  "EMAIL"
+                ],
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": false,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "CLIENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_NAME",
+                      "displayName": "Client Name",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "COUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "COUNT",
+                      "displayName": "Count",
+                      "alias": null,
+                      "entity": "STATUS_SUMMARY",
+                      "id": "COUNTID"
+                    }
+                  },
+                  {
+                    "field": "STATUS",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden",
+                        "type": "enum"
+                      },
+                      "attribute": "STATUS",
+                      "displayName": "Status",
+                      "alias": null,
+                      "entity": "STATUS_SUMMARY",
+                      "id": "STATUSID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "CLIENT_ID",
+                      "displayName": "Client Id",
+                      "alias": null,
+                      "entity": "STATUS_SUMMARY",
+                      "id": "CLIENT_IDID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_DESCRIPTION",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "displayName": "Client Description",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_DESCRIPTIONID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Count",
+                      "scope": "#/properties/COUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 0
+                        },
+                        "alias": null,
+                        "attribute": "COUNT",
+                        "entity": "STATUS_SUMMARY",
+                        "id": "COUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "STATUS_SUMMARY",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_ID"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_ID",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "STATUS_SUMMARY",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Count",
+                      "scope": "#/properties/COUNT",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 0
+                        },
+                        "alias": null,
+                        "attribute": "COUNT",
+                        "entity": "STATUS_SUMMARY",
+                        "id": "COUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "STATUS_SUMMARY",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_ID"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_ID",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "STATUS_SUMMARY",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Status Summary",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "CLIENT_NAMEID",
+                      "attribute": "CLIENT_NAME",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CLIENT_DESCRIPTIONID",
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Description",
+                      "gridDisplay": {
+                        "mode": "hidden",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "CLIENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "COUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "STATUS",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_DESCRIPTION",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {},
+              "metadata": {
+                "todo": "After row:\n          const { ROW_REF, ...DETAILS } = rowData;\nAdd these two rows:\n          delete DETAILS['CLIENT_DESCRIPTION'];\n          delete DETAILS['CLIENT_NAME'];\n\nTODO: Replace minWidth and maxWidth rows with the following:\n      width: 120,\n\nTODO: Replace the following 3 lines:\ncontentTemplate: `\n          <rapid-icon name=\"cog\"></rapid-icon>\n        `,\n\nWith:\n      actionName: 'Email',\n      appearance: 'danger',\n\nTODO: Inside loans-ready-by-client.template.ts after the line:\n      resourceName=\"ALL_STATUS_SUMMARYS\"\nadd the following line:\n      :datasourceConfig=${() => ({criteria:\"STATUS =='Ready'\"})}\n"
+              }
+            },
+            {
+              "title": "Loans - Emailed",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_LOANS",
+                "permissions": {
+                  "updateRight": "LoanUpdate",
+                  "viewRight": "LoanView"
+                },
+                "updateEvent": "EVENT_LOAN_MODIFY",
+                "deleteEvent": null,
+                "createEvent": null,
+                "customEvents": null,
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": false,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "LOAN_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "LOAN_ID",
+                      "displayName": "Loan Id",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "LOAN_IDID"
+                    }
+                  },
+                  {
+                    "field": "STATUS",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "STATUS",
+                      "displayName": "Status",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "STATUSID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_DATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getDateFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "en-GB",
+                        {
+                          "year": "numeric",
+                          "month": "short",
+                          "day": "2-digit",
+                          "timeZone": "UTC"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "en-GB",
+                        "year": "numeric",
+                        "month": "short",
+                        "day": "2-digit"
+                      },
+                      "attribute": "DEPOSIT_DATE",
+                      "displayName": "Deposit Date",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_DATEID"
+                    }
+                  },
+                  {
+                    "field": "MATURITY_DATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getDateFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "en-GB",
+                        {
+                          "year": "numeric",
+                          "month": "short",
+                          "day": "2-digit",
+                          "timeZone": "UTC"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "en-GB",
+                        "year": "numeric",
+                        "month": "short",
+                        "day": "2-digit"
+                      },
+                      "attribute": "MATURITY_DATE",
+                      "displayName": "Maturity Date",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "MATURITY_DATEID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_AMOUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "DEPOSIT_AMOUNT",
+                      "displayName": "Deposit Amount",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_AMOUNTID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_RATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "DEPOSIT_RATE",
+                      "displayName": "Deposit Rate",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_RATEID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_CCY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "DEPOSIT_CCY",
+                      "displayName": "Deposit Ccy",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_CCYID"
+                    }
+                  },
+                  {
+                    "field": "MATURITY_AMOUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "MATURITY_AMOUNT",
+                      "displayName": "Maturity Amount",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "MATURITY_AMOUNTID"
+                    }
+                  },
+                  {
+                    "field": "COMMENT",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COMMENT",
+                      "displayName": "Comment",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "COMMENTID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_NAME",
+                      "displayName": "Client Name",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_DESCRIPTION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "displayName": "Client Description",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_DESCRIPTIONID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "CLIENT_ID",
+                      "displayName": "Client Id",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "CLIENT_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Loan Id",
+                      "scope": "#/properties/LOAN_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "LOAN_ID",
+                        "entity": "LOAN",
+                        "id": "LOAN_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "LOAN",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Date",
+                      "scope": "#/properties/DEPOSIT_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_DATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Date",
+                      "scope": "#/properties/MATURITY_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_DATE",
+                        "entity": "LOAN",
+                        "id": "MATURITY_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Amount",
+                      "scope": "#/properties/DEPOSIT_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Rate",
+                      "scope": "#/properties/DEPOSIT_RATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_RATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_RATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Ccy",
+                      "scope": "#/properties/DEPOSIT_CCY",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_CCY",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_CCYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Amount",
+                      "scope": "#/properties/MATURITY_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "MATURITY_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Comment",
+                      "scope": "#/properties/COMMENT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMMENT",
+                        "entity": "LOAN",
+                        "id": "COMMENTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_NAME"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_NAME",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "LOAN",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Loan Id",
+                      "scope": "#/properties/LOAN_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "LOAN_ID",
+                        "entity": "LOAN",
+                        "id": "LOAN_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "LOAN",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Date",
+                      "scope": "#/properties/DEPOSIT_DATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_DATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Date",
+                      "scope": "#/properties/MATURITY_DATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_DATE",
+                        "entity": "LOAN",
+                        "id": "MATURITY_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Amount",
+                      "scope": "#/properties/DEPOSIT_AMOUNT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Rate",
+                      "scope": "#/properties/DEPOSIT_RATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_RATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_RATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Ccy",
+                      "scope": "#/properties/DEPOSIT_CCY",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_CCY",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_CCYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Amount",
+                      "scope": "#/properties/MATURITY_AMOUNT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "MATURITY_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Comment",
+                      "scope": "#/properties/COMMENT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMMENT",
+                        "entity": "LOAN",
+                        "id": "COMMENTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "readonly": true,
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_NAME"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_NAME",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "LOAN",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Loan",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "CLIENT_NAMEID",
+                      "attribute": "CLIENT_NAME",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CLIENT_DESCRIPTIONID",
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Description",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "LOAN_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "STATUS",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "MATURITY_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_AMOUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_RATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_CCY",
+                      "alias": null
+                    },
+                    {
+                      "name": "MATURITY_AMOUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "COMMENT",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_DESCRIPTION",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {},
+              "metadata": {
+                "todo": "Inside loans-emailed.template.ts after the line:\n      resourceName=\"ALL_LOANS\"\nadd the following line:\n      :datasourceConfig=${() => ({criteria:\"STATUS =='Emailed'\"})}\n"
+              }
+            },
+            {
+              "title": "Loans - Deleted",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_LOANS",
+                "permissions": {
+                  "updateRight": "LoanUpdate",
+                  "viewRight": "LoanView"
+                },
+                "updateEvent": "EVENT_LOAN_MODIFY",
+                "deleteEvent": null,
+                "createEvent": null,
+                "customEvents": null,
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": false,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "LOAN_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "LOAN_ID",
+                      "displayName": "Loan Id",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "LOAN_IDID"
+                    }
+                  },
+                  {
+                    "field": "STATUS",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "STATUS",
+                      "displayName": "Status",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "STATUSID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_DATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getDateFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "en-GB",
+                        {
+                          "year": "numeric",
+                          "month": "short",
+                          "day": "2-digit",
+                          "timeZone": "UTC"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "en-GB",
+                        "year": "numeric",
+                        "month": "short",
+                        "day": "2-digit"
+                      },
+                      "attribute": "DEPOSIT_DATE",
+                      "displayName": "Deposit Date",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_DATEID"
+                    }
+                  },
+                  {
+                    "field": "MATURITY_DATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getDateFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "en-GB",
+                        {
+                          "year": "numeric",
+                          "month": "short",
+                          "day": "2-digit",
+                          "timeZone": "UTC"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "en-GB",
+                        "year": "numeric",
+                        "month": "short",
+                        "day": "2-digit"
+                      },
+                      "attribute": "MATURITY_DATE",
+                      "displayName": "Maturity Date",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "MATURITY_DATEID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_AMOUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "DEPOSIT_AMOUNT",
+                      "displayName": "Deposit Amount",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_AMOUNTID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_RATE",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "DEPOSIT_RATE",
+                      "displayName": "Deposit Rate",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_RATEID"
+                    }
+                  },
+                  {
+                    "field": "DEPOSIT_CCY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "DEPOSIT_CCY",
+                      "displayName": "Deposit Ccy",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "DEPOSIT_CCYID"
+                    }
+                  },
+                  {
+                    "field": "MATURITY_AMOUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "MATURITY_AMOUNT",
+                      "displayName": "Maturity Amount",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "MATURITY_AMOUNTID"
+                    }
+                  },
+                  {
+                    "field": "COMMENT",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COMMENT",
+                      "displayName": "Comment",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "COMMENTID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_NAME",
+                      "displayName": "Client Name",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_DESCRIPTION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "displayName": "Client Description",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_DESCRIPTIONID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "CLIENT_ID",
+                      "displayName": "Client Id",
+                      "alias": null,
+                      "entity": "LOAN",
+                      "id": "CLIENT_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Loan Id",
+                      "scope": "#/properties/LOAN_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "LOAN_ID",
+                        "entity": "LOAN",
+                        "id": "LOAN_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "LOAN",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Date",
+                      "scope": "#/properties/DEPOSIT_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_DATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Date",
+                      "scope": "#/properties/MATURITY_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_DATE",
+                        "entity": "LOAN",
+                        "id": "MATURITY_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Amount",
+                      "scope": "#/properties/DEPOSIT_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Rate",
+                      "scope": "#/properties/DEPOSIT_RATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_RATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_RATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Ccy",
+                      "scope": "#/properties/DEPOSIT_CCY",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_CCY",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_CCYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Amount",
+                      "scope": "#/properties/MATURITY_AMOUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "MATURITY_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Comment",
+                      "scope": "#/properties/COMMENT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMMENT",
+                        "entity": "LOAN",
+                        "id": "COMMENTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_ID"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_ID",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "LOAN",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Loan Id",
+                      "scope": "#/properties/LOAN_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "LOAN_ID",
+                        "entity": "LOAN",
+                        "id": "LOAN_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Status",
+                      "scope": "#/properties/STATUS",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "STATUS",
+                        "entity": "LOAN",
+                        "id": "STATUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Date",
+                      "scope": "#/properties/DEPOSIT_DATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_DATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Date",
+                      "scope": "#/properties/MATURITY_DATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_DATE",
+                        "entity": "LOAN",
+                        "id": "MATURITY_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Amount",
+                      "scope": "#/properties/DEPOSIT_AMOUNT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Rate",
+                      "scope": "#/properties/DEPOSIT_RATE",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_RATE",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_RATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Deposit Ccy",
+                      "scope": "#/properties/DEPOSIT_CCY",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "DEPOSIT_CCY",
+                        "entity": "LOAN",
+                        "id": "DEPOSIT_CCYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Maturity Amount",
+                      "scope": "#/properties/MATURITY_AMOUNT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "MATURITY_AMOUNT",
+                        "entity": "LOAN",
+                        "id": "MATURITY_AMOUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Comment",
+                      "scope": "#/properties/COMMENT",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMMENT",
+                        "entity": "LOAN",
+                        "id": "COMMENTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "readonly": true,
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_ID"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_ID",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "LOAN",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Loan",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "CLIENT_NAMEID",
+                      "attribute": "CLIENT_NAME",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CLIENT_DESCRIPTIONID",
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Description",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "LOAN_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "STATUS",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "MATURITY_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_AMOUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_RATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "DEPOSIT_CCY",
+                      "alias": null
+                    },
+                    {
+                      "name": "MATURITY_AMOUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "COMMENT",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_DESCRIPTION",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {},
+              "metadata": {
+                "todo": "Inside loans-deleted.template.ts after the line:\n      resourceName=\"ALL_LOANS\"\nadd the following line:\n      :datasourceConfig=${() => ({criteria:\"STATUS =='Deleted'\"})}\n"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Static",
+          "layoutType": null,
+          "permissions": {
+            "viewRight": "StaticView"
+          },
+          "tiles": [
+            {
+              "title": "Clients",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_CLIENTS",
+                "permissions": {
+                  "updateRight": "ClientUpdate",
+                  "viewRight": "ClientView"
+                },
+                "updateEvent": "EVENT_CLIENT_MODIFY",
+                "deleteEvent": "EVENT_CLIENT_DELETE",
+                "createEvent": "EVENT_CLIENT_INSERT",
+                "customEvents": null,
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "CLIENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_NAME",
+                      "displayName": "Client Name",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_DESCRIPTION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "displayName": "Client Description",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_DESCRIPTIONID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "CLIENT_ID",
+                      "displayName": "Client Id",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Client Name",
+                      "scope": "#/properties/CLIENT_NAME",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_NAME",
+                        "entity": "CLIENT",
+                        "id": "CLIENT_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Description",
+                      "scope": "#/properties/CLIENT_DESCRIPTION",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_DESCRIPTION",
+                        "entity": "CLIENT",
+                        "id": "CLIENT_DESCRIPTIONID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "CLIENT",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Client Name",
+                      "scope": "#/properties/CLIENT_NAME",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_NAME",
+                        "entity": "CLIENT",
+                        "id": "CLIENT_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Description",
+                      "scope": "#/properties/CLIENT_DESCRIPTION",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_DESCRIPTION",
+                        "entity": "CLIENT",
+                        "id": "CLIENT_DESCRIPTIONID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "CLIENT",
+                        "id": "CLIENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Client",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [],
+                  "configAttrNames": [
+                    {
+                      "name": "CLIENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_DESCRIPTION",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            },
+            {
+              "title": "Client Emails",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_CLIENT_EMAILS",
+                "permissions": {
+                  "updateRight": "ClientEmailUpdate",
+                  "viewRight": "ClientEmailView"
+                },
+                "updateEvent": "EVENT_CLIENT_EMAIL_MODIFY",
+                "deleteEvent": "EVENT_CLIENT_EMAIL_DELETE",
+                "createEvent": "EVENT_CLIENT_EMAIL_INSERT",
+                "customEvents": null,
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "CLIENT_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "CLIENT_ID",
+                      "displayName": "Client Id",
+                      "alias": null,
+                      "entity": "CLIENT_EMAIL",
+                      "id": "CLIENT_IDID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_NAME",
+                      "displayName": "Client Name",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "EMAIL_ADDRESS",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "EMAIL_ADDRESS",
+                      "displayName": "Email Address",
+                      "alias": null,
+                      "entity": "CLIENT_EMAIL",
+                      "id": "EMAIL_ADDRESSID"
+                    }
+                  },
+                  {
+                    "field": "EMAIL_TYPE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "EMAIL_TYPE",
+                      "displayName": "Email Type",
+                      "alias": null,
+                      "entity": "CLIENT_EMAIL",
+                      "id": "EMAIL_TYPEID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_DESCRIPTION",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "displayName": "Client Description",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "id": "CLIENT_DESCRIPTIONID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_NAME"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_NAME",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "CLIENT_EMAIL",
+                        "id": "CLIENT_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Email Address",
+                      "scope": "#/properties/EMAIL_ADDRESS",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "EMAIL_ADDRESS",
+                        "entity": "CLIENT_EMAIL",
+                        "id": "EMAIL_ADDRESSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Email Type",
+                      "scope": "#/properties/EMAIL_TYPE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "EMAIL_TYPE",
+                        "entity": "CLIENT_EMAIL",
+                        "id": "EMAIL_TYPEID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Client Id",
+                      "scope": "#/properties/CLIENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "CLIENT",
+                        "valueField": "CLIENT_ID",
+                        "labelField": "CLIENT_NAME"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CLIENT_NAME",
+                          "entity": "CLIENT"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_ID",
+                        "entity": "CLIENT_EMAIL",
+                        "id": "CLIENT_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Email Address",
+                      "scope": "#/properties/EMAIL_ADDRESS",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "EMAIL_ADDRESS",
+                        "entity": "CLIENT_EMAIL",
+                        "id": "EMAIL_ADDRESSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Email Type",
+                      "scope": "#/properties/EMAIL_TYPE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "EMAIL_TYPE",
+                        "entity": "CLIENT_EMAIL",
+                        "id": "EMAIL_TYPEID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Client Email",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "CLIENT_NAMEID",
+                      "attribute": "CLIENT_NAME",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CLIENT_DESCRIPTIONID",
+                      "attribute": "CLIENT_DESCRIPTION",
+                      "alias": null,
+                      "entity": "CLIENT",
+                      "displayName": "Client Description",
+                      "gridDisplay": {
+                        "mode": "hidden",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "CLIENT_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "EMAIL_ADDRESS",
+                      "alias": null
+                    },
+                    {
+                      "name": "EMAIL_TYPE",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_DESCRIPTION",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            },
+            {
+              "title": "Document Template",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_DOCUMENT_TEMPLATES",
+                "permissions": null,
+                "updateEvent": "EVENT_DOCUMENT_TEMPLATE_MODIFY",
+                "deleteEvent": "EVENT_DOCUMENT_TEMPLATE_DELETE",
+                "createEvent": "EVENT_DOCUMENT_TEMPLATE_INSERT",
+                "customEvents": null,
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": false,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "REPORT_NUMBER",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "REPORT_NUMBER",
+                      "displayName": "Report Number",
+                      "alias": null,
+                      "entity": "DOCUMENT_TEMPLATE",
+                      "id": "REPORT_NUMBERID"
+                    }
+                  },
+                  {
+                    "field": "FILE_STORAGE_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "FILE_STORAGE_ID",
+                      "displayName": "File Storage Id",
+                      "alias": null,
+                      "entity": "DOCUMENT_TEMPLATE",
+                      "id": "FILE_STORAGE_IDID"
+                    }
+                  },
+                  {
+                    "field": "MESSAGE_HEADER",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "MESSAGE_HEADER",
+                      "displayName": "Message Header",
+                      "alias": null,
+                      "entity": "DOCUMENT_TEMPLATE",
+                      "id": "MESSAGE_HEADERID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Report Number",
+                      "scope": "#/properties/REPORT_NUMBER",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "REPORT_NUMBER",
+                        "entity": "DOCUMENT_TEMPLATE",
+                        "id": "REPORT_NUMBERID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "File Storage Id",
+                      "scope": "#/properties/FILE_STORAGE_ID",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "FILE_STORAGE_ID",
+                        "entity": "DOCUMENT_TEMPLATE",
+                        "id": "FILE_STORAGE_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Message Header",
+                      "scope": "#/properties/MESSAGE_HEADER",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "MESSAGE_HEADER",
+                        "entity": "DOCUMENT_TEMPLATE",
+                        "id": "MESSAGE_HEADERID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Report Number",
+                      "scope": "#/properties/REPORT_NUMBER",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "REPORT_NUMBER",
+                        "entity": "DOCUMENT_TEMPLATE",
+                        "id": "REPORT_NUMBERID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "File Storage Id",
+                      "scope": "#/properties/FILE_STORAGE_ID",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "FILE_STORAGE_ID",
+                        "entity": "DOCUMENT_TEMPLATE",
+                        "id": "FILE_STORAGE_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Message Header",
+                      "scope": "#/properties/MESSAGE_HEADER",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "MESSAGE_HEADER",
+                        "entity": "DOCUMENT_TEMPLATE",
+                        "id": "MESSAGE_HEADERID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Document Template",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [],
+                  "configAttrNames": [
+                    {
+                      "name": "REPORT_NUMBER",
+                      "alias": null
+                    },
+                    {
+                      "name": "FILE_STORAGE_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "MESSAGE_HEADER",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {},
+              "metadata": {
+                "todo": "Inside document-template.create.form.schemat.ts add the following inside the braces of \"Options{}\":\n        \"allOptionsResourceName\": 'ALL_FILE_STORAGE',\n        \"valueField\": \"FILE_STORAGE_ID\",\n        \"labelField\": \"FILE_NAME\"\n\nTODO: repeat the above in the update.form.schema.ts"
+              }
+            }
+          ]
+        }
+      ],
+      "framework": "web components"
+    },
+    "views": [
+      {
+        "name": "LOAN_VIEW",
+        "rootTable": "LOAN",
+        "tableAliases": {
+          "LOAN": "LOAN",
+          "CLIENT": "CLIENT"
+        },
+        "fields": [
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "LOAN_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "DEPOSIT_DATE",
+            "type": "DATE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "MATURITY_DATE",
+            "type": "DATE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "DEPOSIT_AMOUNT",
+            "type": "DOUBLE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "DEPOSIT_RATE",
+            "type": "DOUBLE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "DEPOSIT_CCY",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "MATURITY_AMOUNT",
+            "type": "DOUBLE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "COMMENT",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "STATUS",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "CLIENT",
+            "sourceField": "CLIENT_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "CLIENT",
+            "sourceField": "CLIENT_DESCRIPTION",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOAN",
+            "sourceField": "CLIENT_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          }
+        ],
+        "join": {
+          "toTableAlias": "LOAN",
+          "links": [
+            {
+              "joinTo": "CLIENT",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "LOAN",
+                  "fromField": "CLIENT_ID",
+                  "toTableAlias": "CLIENT",
+                  "toField": "CLIENT_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": null
+            }
+          ]
+        },
+        "snapshot": true,
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_LOANS",
+            "viewRight": "LoanView",
+            "fields": [
+              "LOAN_ID",
+              "DEPOSIT_DATE",
+              "MATURITY_DATE",
+              "DEPOSIT_AMOUNT",
+              "DEPOSIT_RATE",
+              "DEPOSIT_CCY",
+              "MATURITY_AMOUNT",
+              "COMMENT",
+              "STATUS",
+              "CLIENT_NAME",
+              "CLIENT_DESCRIPTION",
+              "CLIENT_ID"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "CLIENT_EMAIL_VIEW",
+        "rootTable": "CLIENT_EMAIL",
+        "tableAliases": {
+          "CLIENT_EMAIL": "CLIENT_EMAIL",
+          "CLIENT": "CLIENT"
+        },
+        "fields": [
+          {
+            "tableAlias": "CLIENT_EMAIL",
+            "sourceField": "CLIENT_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "CLIENT_EMAIL",
+            "sourceField": "EMAIL_ADDRESS",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "CLIENT_EMAIL",
+            "sourceField": "EMAIL_TYPE",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "CLIENT",
+            "sourceField": "CLIENT_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "CLIENT",
+            "sourceField": "CLIENT_DESCRIPTION",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          }
+        ],
+        "join": {
+          "toTableAlias": "CLIENT_EMAIL",
+          "links": [
+            {
+              "joinTo": "CLIENT",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "CLIENT_EMAIL",
+                  "fromField": "CLIENT_ID",
+                  "toTableAlias": "CLIENT",
+                  "toField": "CLIENT_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": null
+            }
+          ]
+        },
+        "snapshot": true,
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_CLIENT_EMAILS",
+            "viewRight": "ClientEmailView",
+            "fields": [
+              "CLIENT_ID",
+              "EMAIL_ADDRESS",
+              "EMAIL_TYPE",
+              "CLIENT_NAME",
+              "CLIENT_DESCRIPTION"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "STATUS_SUMMARY_VIEW",
+        "rootTable": "STATUS_SUMMARY",
+        "tableAliases": {
+          "STATUS_SUMMARY": "STATUS_SUMMARY",
+          "CLIENT": "CLIENT"
+        },
+        "fields": [
+          {
+            "tableAlias": "STATUS_SUMMARY",
+            "sourceField": "STATUS",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "STATUS_SUMMARY",
+            "sourceField": "CLIENT_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "STATUS_SUMMARY",
+            "sourceField": "COUNT",
+            "type": "INT",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "CLIENT",
+            "sourceField": "CLIENT_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "CLIENT",
+            "sourceField": "CLIENT_DESCRIPTION",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          }
+        ],
+        "join": {
+          "toTableAlias": "STATUS_SUMMARY",
+          "links": [
+            {
+              "joinTo": "CLIENT",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "STATUS_SUMMARY",
+                  "fromField": "CLIENT_ID",
+                  "toTableAlias": "CLIENT",
+                  "toField": "CLIENT_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": null
+            }
+          ]
+        },
+        "snapshot": true,
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_STATUS_SUMMARYS",
+            "viewRight": "StatusSummaryView",
+            "fields": [
+              "STATUS",
+              "CLIENT_ID",
+              "COUNT",
+              "CLIENT_NAME",
+              "CLIENT_DESCRIPTION"
+            ]
+          }
+        ]
+      }
+    ],
+    "PBCs": [
+      {
+        "id": "pbc-auth-seed",
+        "config": {}
+      },
+      {
+        "id": "pbc-notify-seed",
+        "config": {
+          "notificationEntities": "[\"LOAN\",\"DOCUMENT_TEMPLATE\",\"CLIENT\",\"CLIENT_EMAIL\",\"STATUS_SUMMARY\",\"LOAN_VIEW\",\"CLIENT_EMAIL_VIEW\",\"STATUS_SUMMARY_VIEW\"]"
+        }
+      },
+      {
+        "id": "pbc-reporting-seed",
+        "config": {
+          "reportingQueries": "[\"ALL_DOCUMENT_TEMPLATES\",\"ALL_CLIENTS\",\"ALL_LOANS\",\"ALL_CLIENT_EMAILS\",\"ALL_STATUS_SUMMARYS\",\"LOAN\",\"DOCUMENT_TEMPLATE\",\"DOCUMENT_TEMPLATE_AUDIT\",\"CLIENT\",\"CLIENT_AUDIT\",\"CLIENT_EMAIL\",\"CLIENT_EMAIL_AUDIT\",\"STATUS_SUMMARY\",\"LOAN_VIEW\",\"CLIENT_EMAIL_VIEW\",\"STATUS_SUMMARY_VIEW\"]"
+        }
+      },
+      {
+        "id": "pbc-documents-seed",
+        "config": {}
+      }
+    ],
+    "csv": [
+      {
+        "name": "LOAN",
+        "fields": [
+          "DEPOSIT_DATE",
+          "MATURITY_DATE",
+          "DEPOSIT_AMOUNT",
+          "DEPOSIT_RATE",
+          "DEPOSIT_CCY",
+          "MATURITY_AMOUNT",
+          "COMMENT",
+          "STATUS",
+          "CLIENT_ID"
+        ]
+      },
+      {
+        "name": "DOCUMENT_TEMPLATE",
+        "fields": [
+          "REPORT_NUMBER",
+          "FILE_STORAGE_ID",
+          "MESSAGE_HEADER"
+        ]
+      },
+      {
+        "name": "CLIENT",
+        "fields": [
+          "CLIENT_NAME",
+          "CLIENT_DESCRIPTION"
+        ]
+      },
+      {
+        "name": "CLIENT_EMAIL",
+        "fields": [
+          "CLIENT_ID",
+          "EMAIL_ADDRESS",
+          "EMAIL_TYPE"
+        ]
+      },
+      {
+        "name": "STATUS_SUMMARY",
+        "fields": [
+          "STATUS",
+          "CLIENT_ID",
+          "COUNT"
+        ]
+      },
+      {
+        "name": "RIGHT",
+        "fields": [
+          "CODE",
+          "DESCRIPTION"
+        ],
+        "data": [
+          [
+            "DocumentTemplateView",
+            "Document template view"
+          ],
+          [
+            "ClientView",
+            "Client view"
+          ],
+          [
+            "LoanView",
+            "Loan view"
+          ],
+          [
+            "ClientEmailView",
+            "Client email view"
+          ],
+          [
+            "StatusSummaryView",
+            "Status summary view"
+          ],
+          [
+            "LoanUpdate",
+            "Loan update"
+          ],
+          [
+            "DocumentTemplateUpdate",
+            "Document template update"
+          ],
+          [
+            "ClientUpdate",
+            "Client update"
+          ],
+          [
+            "ClientEmailUpdate",
+            "Client email update"
+          ],
+          [
+            "StatusSummaryUpdate",
+            "Status summary update"
+          ],
+          [
+            "StaticView",
+            "Static view"
+          ]
+        ]
+      },
+      {
+        "name": "PROFILE",
+        "fields": [
+          "NAME",
+          "DESCRIPTION",
+          "STATUS"
+        ],
+        "data": [
+          [
+            "gge_ADMIN",
+            "Gge admin",
+            "ENABLED"
+          ]
+        ]
+      },
+      {
+        "name": "PROFILE_RIGHT",
+        "fields": [
+          "PROFILE_NAME",
+          "RIGHT_CODE"
+        ],
+        "data": [
+          [
+            "gge_ADMIN",
+            "DocumentTemplateView"
+          ],
+          [
+            "gge_ADMIN",
+            "ClientView"
+          ],
+          [
+            "gge_ADMIN",
+            "LoanView"
+          ],
+          [
+            "gge_ADMIN",
+            "ClientEmailView"
+          ],
+          [
+            "gge_ADMIN",
+            "StatusSummaryView"
+          ],
+          [
+            "gge_ADMIN",
+            "LoanUpdate"
+          ],
+          [
+            "gge_ADMIN",
+            "DocumentTemplateUpdate"
+          ],
+          [
+            "gge_ADMIN",
+            "ClientUpdate"
+          ],
+          [
+            "gge_ADMIN",
+            "ClientEmailUpdate"
+          ],
+          [
+            "gge_ADMIN",
+            "StatusSummaryUpdate"
+          ],
+          [
+            "gge_ADMIN",
+            "StaticView"
+          ]
+        ]
+      },
+      {
+        "name": "PROFILE_USER",
+        "data": [
+          [
+            "gge_ADMIN",
+            "admin"
+          ]
+        ],
+        "mode": "append"
+      }
+    ],
+    "userOverrides": null,
+    "deliveryConfig": null,
+    "telemetry": null
+  }
+}
