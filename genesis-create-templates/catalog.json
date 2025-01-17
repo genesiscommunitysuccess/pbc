@@ -21,14 +21,14 @@
         "fileLocation": "genesis-create-templates/gge-Create-Template.json"
     },
     {
-        "name": "one-to-one - real-time reconciliation ",
+        "name": "one-to-one - real-time reconciliation",
         "description": "A template application for providing a real-time one to one reconciliation and associated workflow capability",
         "repo": "genesiscommunitysuccess/pbc",
         "branch": "main",
         "fileLocation": "genesis-create-templates/one-to-one-Create-Template.json"
     },
     {
-        "name": "one-to-many - real-time reconciliation ",
+        "name": "one-to-many - real-time reconciliation",
         "description": "A template application for providing a real-time one to many reconciliation and associated workflow capability",
         "repo": "genesiscommunitysuccess/pbc",
         "branch": "main",
