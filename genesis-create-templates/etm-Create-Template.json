@@ -1,0 +1,5294 @@
+{
+  "meta": {
+    "version": "1.159.5",
+    "generated": "Thu, 09 Jan 2025 20:06:42 GMT"
+  },
+  "data": {
+    "projectName": "etm",
+    "description": "Entertrainer  event manager. The projects allows its users to search and organized event for the prospective business clients. ",
+    "components": [
+      "GenesisServerCore",
+      "User Authorization",
+      "DataServerCore",
+      "ConsolidatorCore",
+      "DataPipelinesCore",
+      "Notifications",
+      "Reporting",
+      "Document Management",
+      "Reconciliation",
+      "ListenChannelFDC3",
+      "EventHandlersCore"
+    ],
+    "tables": [
+      {
+        "name": "T_EVENT",
+        "id": 11000,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "EVENT_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "EVENT_NAME",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": false
+          },
+          {
+            "name": "EVENT_DATE",
+            "type": "DATE",
+            "nullable": false
+          },
+          {
+            "name": "EVENT_TIME",
+            "type": "DATETIME",
+            "nullable": false
+          },
+          {
+            "name": "EVENT_RADIUS",
+            "nullable": false,
+            "type": "DOUBLE"
+          },
+          {
+            "name": "LOCATION_ID",
+            "type": "LONG",
+            "nullable": false,
+            "meta": {
+              "entityReferenceAttribute": "LOCATION_ID",
+              "entityReference": "LOCATION"
+            }
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "EVENT_ID"
+          }
+        ],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "TEventUpdate",
+        "viewRight": "TEventView",
+        "realtimeQueries": [],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "EVENT_ID",
+            "EVENT_NAME",
+            "EVENT_DATE",
+            "EVENT_TIME",
+            "EVENT_RADIUS",
+            "LOCATION_ID"
+          ]
+        }
+      },
+      {
+        "name": "OPPORTUNITY",
+        "id": 11001,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "OPPORTUNITY_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "STATUS",
+            "type": "ENUM",
+            "defaultValue": "INVITED",
+            "values": [
+              "INVITED",
+              "ATTENDED"
+            ],
+            "nullable": false
+          },
+          {
+            "name": "EVENT_ID",
+            "nullable": false,
+            "type": "LONG",
+            "meta": {
+              "entityReferenceAttribute": "EVENT_ID",
+              "entityReference": "T_EVENT"
+            }
+          },
+          {
+            "name": "FEEDBACK",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": false
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "OPPORTUNITY_ID"
+          }
+        ],
+        "audit": false,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "OpportunityUpdate",
+        "viewRight": "OpportunityView",
+        "realtimeQueries": [],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "OPPORTUNITY_ID",
+            "STATUS",
+            "EVENT_ID",
+            "FEEDBACK"
+          ]
+        }
+      },
+      {
+        "name": "PROSPECTS",
+        "id": 11002,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "PROSPECT_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "EVENT_ID",
+            "nullable": false,
+            "type": "LONG",
+            "meta": {
+              "entityReferenceAttribute": "EVENT_ID",
+              "entityReference": "T_EVENT"
+            }
+          },
+          {
+            "name": "STATUS",
+            "type": "ENUM",
+            "defaultValue": "INVITED",
+            "values": [
+              "INVITED",
+              "ATTENDED"
+            ],
+            "nullable": false
+          },
+          {
+            "name": "FEEDBACK",
+            "type": "STRING",
+            "maxSize": 100,
+            "nullable": false,
+            "defaultValue": null,
+            "pattern": null
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "PROSPECT_ID"
+          }
+        ],
+        "audit": false,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "ProspectsUpdate",
+        "viewRight": "ProspectsView",
+        "realtimeQueries": [],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "PROSPECT_ID",
+            "EVENT_ID",
+            "STATUS",
+            "FEEDBACK"
+          ]
+        }
+      },
+      {
+        "name": "ADDRESS",
+        "id": 11003,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "ADDRESS_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "type": "STRING",
+            "name": "STREET",
+            "nullable": false,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "type": "STRING",
+            "name": "CITY",
+            "nullable": false,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "type": "STRING",
+            "name": "STATE",
+            "nullable": false,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "type": "STRING",
+            "name": "REGION",
+            "nullable": false,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "type": "STRING",
+            "name": "COUNTRY",
+            "nullable": false,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "type": "STRING",
+            "name": "ZIPCODE",
+            "nullable": true,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "ADDRESS_ID"
+          }
+        ],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "AddressUpdate",
+        "viewRight": "AddressView",
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_ADDRESSS",
+            "viewRight": "AddressView",
+            "fields": [
+              "ADDRESS_ID",
+              "STREET",
+              "CITY",
+              "STATE",
+              "REGION",
+              "COUNTRY",
+              "ZIPCODE"
+            ]
+          }
+        ],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "ADDRESS_ID",
+            "STREET",
+            "CITY",
+            "STATE",
+            "REGION",
+            "COUNTRY",
+            "ZIPCODE"
+          ]
+        }
+      },
+      {
+        "name": "INVITE",
+        "id": 11004,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "INVITE_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "name": "EVENT_ID",
+            "type": "LONG",
+            "nullable": false,
+            "meta": {
+              "entityReferenceAttribute": "EVENT_ID",
+              "entityReference": "T_EVENT"
+            }
+          },
+          {
+            "type": "INT",
+            "name": "TICKET_COUNT",
+            "nullable": true,
+            "appProvided": false,
+            "readOnly": false
+          },
+          {
+            "type": "ENUM",
+            "name": "MANAGER_APPROVAL",
+            "values": [
+              "OPEN",
+              "APPROVED",
+              "DECLINED"
+            ],
+            "defaultValue": "OPEN",
+            "nullable": false
+          },
+          {
+            "type": "ENUM",
+            "name": "CLIENT_APPROVAL",
+            "values": [
+              "OPEN",
+              "APPROVED",
+              "DECLINED"
+            ],
+            "defaultValue": "OPEN",
+            "appProvided": false,
+            "readOnly": false,
+            "nullable": false
+          },
+          {
+            "name": "PROFILE_ID",
+            "type": "LONG",
+            "nullable": false,
+            "meta": {
+              "entityReferenceAttribute": "PROFILE_ID",
+              "entityReference": "E_PROFILE"
+            }
+          },
+          {
+            "name": "CATEGORY_ID",
+            "type": "LONG",
+            "nullable": false,
+            "meta": {
+              "entityReferenceAttribute": "CATEGORY_ID",
+              "entityReference": "TICKET_CATEGORY"
+            }
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "INVITE_ID"
+          }
+        ],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "InviteUpdate",
+        "viewRight": "InviteView",
+        "realtimeQueries": [],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "INVITE_ID",
+            "EVENT_ID",
+            "TICKET_COUNT",
+            "MANAGER_APPROVAL",
+            "CLIENT_APPROVAL",
+            "PROFILE_ID",
+            "CATEGORY_ID"
+          ]
+        }
+      },
+      {
+        "name": "COMPANY",
+        "id": 11005,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "COMPANY_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "type": "STRING",
+            "name": "COMPANY_NAME",
+            "nullable": true,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "name": "ADDRESS_ID",
+            "type": "LONG",
+            "nullable": false,
+            "meta": {
+              "entityReferenceAttribute": "ADDRESS_ID",
+              "entityReference": "ADDRESS"
+            }
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "COMPANY_ID"
+          }
+        ],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "CompanyUpdate",
+        "viewRight": "CompanyView",
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_COMPANIES",
+            "viewRight": "CompanyView",
+            "fields": [
+              "COMPANY_ID",
+              "COMPANY_NAME",
+              "ADDRESS_ID"
+            ]
+          }
+        ],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "COMPANY_ID",
+            "COMPANY_NAME",
+            "ADDRESS_ID"
+          ]
+        }
+      },
+      {
+        "name": "E_PROFILE",
+        "id": 11006,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "PROFILE_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "type": "STRING",
+            "name": "PROFILE_NAME",
+            "nullable": false,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "type": "STRING",
+            "name": "JOB_TITLE",
+            "nullable": true,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "type": "ENUM",
+            "name": "PROFILE_TYPE",
+            "values": [
+              "NOT_AVAILABLE",
+              "PROSPECT",
+              "CLIENT",
+              "STRATEGIC_PARTNER_EXTERNAL",
+              "STRATEGIC_PARTNER_ENTITY",
+              "STRATEGIC_PARTNER_NON_CUSTOMER",
+              "NON_BUSINESS_SPOUSE",
+              "NON_BUSINESS_FRIEND"
+            ],
+            "defaultValue": "NOT_AVAILABLE",
+            "appProvided": false,
+            "readOnly": false,
+            "nullable": false
+          },
+          {
+            "type": "ENUM",
+            "name": "PREFERENCE",
+            "values": [
+              "NOT_APPLICABLE",
+              "SINGLE_DAY",
+              "MULTI_DAY"
+            ],
+            "defaultValue": "NOT_APPLICABLE",
+            "appProvided": false,
+            "readOnly": false,
+            "nullable": false
+          },
+          {
+            "type": "ENUM",
+            "name": "CLIENT_APPROVAL",
+            "values": [
+              "OPEN",
+              "APPROVED",
+              "DECLINED"
+            ],
+            "defaultValue": "OPEN",
+            "appProvided": false,
+            "readOnly": false,
+            "nullable": false
+          },
+          {
+            "name": "COMPANY_ID",
+            "type": "LONG",
+            "nullable": false,
+            "meta": {
+              "entityReferenceAttribute": "COMPANY_ID",
+              "entityReference": "COMPANY"
+            }
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "PROFILE_ID"
+          }
+        ],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "EProfileUpdate",
+        "viewRight": "EProfileView",
+        "realtimeQueries": [],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "PROFILE_ID",
+            "PROFILE_NAME",
+            "JOB_TITLE",
+            "PROFILE_TYPE",
+            "PREFERENCE",
+            "CLIENT_APPROVAL",
+            "COMPANY_ID"
+          ]
+        }
+      },
+      {
+        "name": "LOCATION",
+        "id": 11007,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "LOCATION_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "type": "STRING",
+            "name": "LOCATION_NAME",
+            "nullable": false,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "name": "ADDRESS_ID",
+            "type": "LONG",
+            "nullable": false,
+            "meta": {
+              "entityReferenceAttribute": "ADDRESS_ID",
+              "entityReference": "ADDRESS"
+            }
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "LOCATION_ID"
+          }
+        ],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "LocationUpdate",
+        "viewRight": "LocationView",
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_LOCATIONS",
+            "viewRight": "LocationView",
+            "fields": [
+              "LOCATION_ID",
+              "LOCATION_NAME",
+              "ADDRESS_ID"
+            ]
+          }
+        ],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "LOCATION_ID",
+            "LOCATION_NAME",
+            "ADDRESS_ID"
+          ]
+        }
+      },
+      {
+        "name": "TICKET_CATEGORY",
+        "id": 11008,
+        "primaryKey": {
+          "id": null,
+          "name": null,
+          "fields": [
+            "CATEGORY_ID"
+          ],
+          "indexType": "UNIQUE"
+        },
+        "fields": [
+          {
+            "type": "STRING",
+            "name": "CATEGORY_NAME",
+            "nullable": false,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          },
+          {
+            "type": "STRING",
+            "name": "CATEGORY_DESCRIPTION",
+            "nullable": true,
+            "maxSize": 100,
+            "sensitive": false,
+            "appProvided": false,
+            "readOnly": false,
+            "username": false
+          }
+        ],
+        "generatedFields": [
+          {
+            "fieldType": "LONG",
+            "generatedFieldType": "AUTO_INCREMENT",
+            "name": "CATEGORY_ID"
+          }
+        ],
+        "audit": true,
+        "generateCreateUpdateDelete": true,
+        "snapshot": true,
+        "updateRight": "TicketCategoryUpdate",
+        "viewRight": "TicketCategoryView",
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_TICKET_CATEGORYS",
+            "viewRight": "TicketCategoryView",
+            "fields": [
+              "CATEGORY_ID",
+              "CATEGORY_NAME",
+              "CATEGORY_DESCRIPTION"
+            ]
+          }
+        ],
+        "indices": [],
+        "meta": {
+          "attrOrder": [
+            "CATEGORY_ID",
+            "CATEGORY_NAME",
+            "CATEGORY_DESCRIPTION"
+          ]
+        }
+      }
+    ],
+    "eventHandlers": [
+      {
+        "entityName": "T_EVENT",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "OPPORTUNITY",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "PROSPECTS",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "ADDRESS",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "INVITE",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "COMPANY",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "E_PROFILE",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "LOCATION",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "TICKET_CATEGORY",
+        "create": {
+          "enabled": true
+        },
+        "update": {
+          "enabled": true
+        },
+        "delete": {
+          "enabled": true
+        },
+        "type": "crud"
+      },
+      {
+        "entityName": "TICKER_CATEGORY",
+        "create": {
+          "enabled": false
+        },
+        "update": {
+          "enabled": false
+        },
+        "delete": {
+          "enabled": false
+        },
+        "type": "crud"
+      }
+    ],
+    "consolidators": [],
+    "pipelines": [],
+    "ui": {
+      "config": null,
+      "routes": [
+        {
+          "id": "ad86bd70-1939-4a05-9507-a0655aaf38f8",
+          "name": "Event",
+          "layoutType": null,
+          "permissions": null,
+          "tiles": [
+            {
+              "title": "Event",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_T_EVENTS",
+                "permissions": {
+                  "updateRight": "TEventUpdate",
+                  "viewRight": "TEventView"
+                },
+                "updateEvent": "EVENT_T_EVENT_MODIFY",
+                "deleteEvent": "EVENT_T_EVENT_DELETE",
+                "createEvent": "EVENT_T_EVENT_INSERT",
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "EVENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "EVENT_NAME",
+                      "displayName": "Event Name",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "EVENT_DATE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit"
+                      },
+                      "attribute": "EVENT_DATE",
+                      "displayName": "Event Date",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_DATEID"
+                    }
+                  },
+                  {
+                    "field": "EVENT_TIME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "datetime",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit",
+                        "hour": "2-digit",
+                        "minute": "2-digit",
+                        "second": "2-digit"
+                      },
+                      "attribute": "EVENT_TIME",
+                      "displayName": "Event Time",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_TIMEID"
+                    }
+                  },
+                  {
+                    "field": "EVENT_RADIUS",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "EVENT_RADIUS",
+                      "displayName": "Event Radius",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_RADIUSID"
+                    }
+                  },
+                  {
+                    "field": "LOCATION_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "LOCATION_NAME",
+                      "displayName": "Location Name",
+                      "alias": null,
+                      "entity": "LOCATION",
+                      "id": "LOCATION_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "STREET",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "STREET",
+                      "displayName": "Street",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "STREETID"
+                    }
+                  },
+                  {
+                    "field": "CITY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CITY",
+                      "displayName": "City",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "CITYID"
+                    }
+                  },
+                  {
+                    "field": "STATE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "STATE",
+                      "displayName": "State",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "STATEID"
+                    }
+                  },
+                  {
+                    "field": "REGION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "REGION",
+                      "displayName": "Region",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "REGIONID"
+                    }
+                  },
+                  {
+                    "field": "COUNTRY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COUNTRY",
+                      "displayName": "Country",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "COUNTRYID"
+                    }
+                  },
+                  {
+                    "field": "ZIPCODE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "ZIPCODE",
+                      "displayName": "Zipcode",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "ZIPCODEID"
+                    }
+                  },
+                  {
+                    "field": "EVENT_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "EVENT_ID",
+                      "displayName": "Event Id",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Event Name",
+                      "scope": "#/properties/EVENT_NAME",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_NAME",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Event Date",
+                      "scope": "#/properties/EVENT_DATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_DATE",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Event Time",
+                      "scope": "#/properties/EVENT_TIME",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "datetime",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit",
+                          "hour": "2-digit",
+                          "minute": "2-digit",
+                          "second": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_TIME",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_TIMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Event Radius",
+                      "scope": "#/properties/EVENT_RADIUS",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_RADIUS",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_RADIUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Event Id",
+                      "scope": "#/properties/EVENT_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_ID",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Event Name",
+                      "scope": "#/properties/EVENT_NAME",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_NAME",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Event Date",
+                      "scope": "#/properties/EVENT_DATE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "date",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_DATE",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_DATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Event Time",
+                      "scope": "#/properties/EVENT_TIME",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "datetime",
+                          "format": "Unformatted",
+                          "year": "2-digit",
+                          "month": "2-digit",
+                          "day": "2-digit",
+                          "hour": "2-digit",
+                          "minute": "2-digit",
+                          "second": "2-digit"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_TIME",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_TIMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Event Radius",
+                      "scope": "#/properties/EVENT_RADIUS",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 2
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_RADIUS",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_RADIUSID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Event Id",
+                      "scope": "#/properties/EVENT_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_ID",
+                        "entity": "T_EVENT",
+                        "id": "EVENT_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "T Event",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "LOCATION_NAMEID",
+                      "attribute": "LOCATION_NAME",
+                      "alias": null,
+                      "entity": "LOCATION",
+                      "displayName": "Location Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "STREETID",
+                      "attribute": "STREET",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "Street",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CITYID",
+                      "attribute": "CITY",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "City",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "STATEID",
+                      "attribute": "STATE",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "State",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "REGIONID",
+                      "attribute": "REGION",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "Region",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "COUNTRYID",
+                      "attribute": "COUNTRY",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "Country",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "ZIPCODEID",
+                      "attribute": "ZIPCODE",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "Zipcode",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "EVENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "EVENT_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "EVENT_TIME",
+                      "alias": null
+                    },
+                    {
+                      "name": "EVENT_RADIUS",
+                      "alias": null
+                    },
+                    {
+                      "name": "LOCATION_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "STREET",
+                      "alias": null
+                    },
+                    {
+                      "name": "CITY",
+                      "alias": null
+                    },
+                    {
+                      "name": "STATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "REGION",
+                      "alias": null
+                    },
+                    {
+                      "name": "COUNTRY",
+                      "alias": null
+                    },
+                    {
+                      "name": "ZIPCODE",
+                      "alias": null
+                    },
+                    {
+                      "name": "EVENT_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            }
+          ]
+        },
+        {
+          "id": "75aee6fb-0f10-43e9-bb5e-9dce0307b6de",
+          "name": "Invite",
+          "layoutType": null,
+          "permissions": null,
+          "tiles": [
+            {
+              "title": "Invite",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_INVITES",
+                "permissions": null,
+                "updateEvent": "EVENT_INVITE_MODIFY",
+                "deleteEvent": "EVENT_INVITE_DELETE",
+                "createEvent": "EVENT_INVITE_INSERT",
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "EVENT_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "EVENT_ID",
+                      "displayName": "Event Id",
+                      "alias": null,
+                      "entity": "INVITE",
+                      "id": "EVENT_IDID"
+                    }
+                  },
+                  {
+                    "field": "TICKET_COUNT",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "TICKET_COUNT",
+                      "displayName": "Ticket Count",
+                      "alias": null,
+                      "entity": "INVITE",
+                      "id": "TICKET_COUNTID"
+                    }
+                  },
+                  {
+                    "field": "MANAGER_APPROVAL",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "MANAGER_APPROVAL",
+                      "displayName": "Manager Approval",
+                      "alias": null,
+                      "entity": "INVITE",
+                      "id": "MANAGER_APPROVALID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_APPROVAL",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "CLIENT_APPROVAL",
+                      "displayName": "Client Approval",
+                      "alias": null,
+                      "entity": "INVITE",
+                      "id": "CLIENT_APPROVALID"
+                    }
+                  },
+                  {
+                    "field": "PROFILE_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "PROFILE_ID",
+                      "displayName": "Profile Id",
+                      "alias": null,
+                      "entity": "INVITE",
+                      "id": "PROFILE_IDID"
+                    }
+                  },
+                  {
+                    "field": "CATEGORY_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "CATEGORY_ID",
+                      "displayName": "Category Id",
+                      "alias": null,
+                      "entity": "INVITE",
+                      "id": "CATEGORY_IDID"
+                    }
+                  },
+                  {
+                    "field": "EVENT_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "EVENT_NAME",
+                      "displayName": "Event Name",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "EVENT_DATE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit"
+                      },
+                      "attribute": "EVENT_DATE",
+                      "displayName": "Event Date",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_DATEID"
+                    }
+                  },
+                  {
+                    "field": "EVENT_TIME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "datetime",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit",
+                        "hour": "2-digit",
+                        "minute": "2-digit",
+                        "second": "2-digit"
+                      },
+                      "attribute": "EVENT_TIME",
+                      "displayName": "Event Time",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_TIMEID"
+                    }
+                  },
+                  {
+                    "field": "EVENT_RADIUS",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0.00",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "attribute": "EVENT_RADIUS",
+                      "displayName": "Event Radius",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "EVENT_RADIUSID"
+                    }
+                  },
+                  {
+                    "field": "LOCATION_ID",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "LOCATION_ID",
+                      "displayName": "Location Id",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "id": "LOCATION_IDID"
+                    }
+                  },
+                  {
+                    "field": "PROFILE_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "PROFILE_NAME",
+                      "displayName": "Profile Name",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "PROFILE_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "JOB_TITLE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "JOB_TITLE",
+                      "displayName": "Job Title",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "JOB_TITLEID"
+                    }
+                  },
+                  {
+                    "field": "PROFILE_TYPE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "PROFILE_TYPE",
+                      "displayName": "Profile Type",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "PROFILE_TYPEID"
+                    }
+                  },
+                  {
+                    "field": "PREFERENCE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "PREFERENCE",
+                      "displayName": "Preference",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "PREFERENCEID"
+                    }
+                  },
+                  {
+                    "field": "E_PROFILE_CLIENT_APPROVAL",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "CLIENT_APPROVAL",
+                      "displayName": "E Profile Client Approval",
+                      "alias": "E_PROFILE_CLIENT_APPROVAL",
+                      "entity": "E_PROFILE",
+                      "id": "CLIENT_APPROVALE_PROFILE_CLIENT_APPROVAL"
+                    }
+                  },
+                  {
+                    "field": "COMPANY_ID",
+                    "valueFormatter": {
+                      "type": "function",
+                      "name": "getNumberFormatter",
+                      "category": "formatter",
+                      "arguments": [
+                        "0,0",
+                        null
+                      ]
+                    },
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "COMPANY_ID",
+                      "displayName": "Company Id",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "COMPANY_IDID"
+                    }
+                  },
+                  {
+                    "field": "CATEGORY_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CATEGORY_NAME",
+                      "displayName": "Category Name",
+                      "alias": null,
+                      "entity": "TICKET_CATEGORY",
+                      "id": "CATEGORY_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "CATEGORY_DESCRIPTION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CATEGORY_DESCRIPTION",
+                      "displayName": "Category Description",
+                      "alias": null,
+                      "entity": "TICKET_CATEGORY",
+                      "id": "CATEGORY_DESCRIPTIONID"
+                    }
+                  },
+                  {
+                    "field": "INVITE_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "INVITE_ID",
+                      "displayName": "Invite Id",
+                      "alias": null,
+                      "entity": "INVITE",
+                      "id": "INVITE_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Event Id",
+                      "scope": "#/properties/EVENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "T_EVENT",
+                        "valueField": "EVENT_ID",
+                        "labelField": "EVENT_ID"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "EVENT_ID",
+                          "entity": "T_EVENT"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_ID",
+                        "entity": "INVITE",
+                        "id": "EVENT_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Ticket Count",
+                      "scope": "#/properties/TICKET_COUNT",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 0
+                        },
+                        "alias": null,
+                        "attribute": "TICKET_COUNT",
+                        "entity": "INVITE",
+                        "id": "TICKET_COUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Manager Approval",
+                      "scope": "#/properties/MANAGER_APPROVAL",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "MANAGER_APPROVAL",
+                        "entity": "INVITE",
+                        "id": "MANAGER_APPROVALID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Approval",
+                      "scope": "#/properties/CLIENT_APPROVAL",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_APPROVAL",
+                        "entity": "INVITE",
+                        "id": "CLIENT_APPROVALID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Profile Id",
+                      "scope": "#/properties/PROFILE_ID",
+                      "options": {
+                        "allOptionsResourceName": "E_PROFILE",
+                        "valueField": "PROFILE_ID",
+                        "labelField": "PROFILE_ID"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "PROFILE_ID",
+                          "entity": "E_PROFILE"
+                        },
+                        "alias": null,
+                        "attribute": "PROFILE_ID",
+                        "entity": "INVITE",
+                        "id": "PROFILE_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Category Id",
+                      "scope": "#/properties/CATEGORY_ID",
+                      "options": {
+                        "allOptionsResourceName": "TICKET_CATEGORY",
+                        "valueField": "CATEGORY_ID",
+                        "labelField": "CATEGORY_ID"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CATEGORY_ID",
+                          "entity": "TICKET_CATEGORY"
+                        },
+                        "alias": null,
+                        "attribute": "CATEGORY_ID",
+                        "entity": "INVITE",
+                        "id": "CATEGORY_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Invite Id",
+                      "scope": "#/properties/INVITE_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "INVITE_ID",
+                        "entity": "INVITE",
+                        "id": "INVITE_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Event Id",
+                      "scope": "#/properties/EVENT_ID",
+                      "options": {
+                        "allOptionsResourceName": "T_EVENT",
+                        "valueField": "EVENT_ID",
+                        "labelField": "EVENT_ID"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "EVENT_ID",
+                          "entity": "T_EVENT"
+                        },
+                        "alias": null,
+                        "attribute": "EVENT_ID",
+                        "entity": "INVITE",
+                        "id": "EVENT_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Ticket Count",
+                      "scope": "#/properties/TICKET_COUNT",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "numeric",
+                          "format": "Financial",
+                          "currency": "$ English (US)",
+                          "decimalPlaces": 0
+                        },
+                        "alias": null,
+                        "attribute": "TICKET_COUNT",
+                        "entity": "INVITE",
+                        "id": "TICKET_COUNTID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Manager Approval",
+                      "scope": "#/properties/MANAGER_APPROVAL",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "MANAGER_APPROVAL",
+                        "entity": "INVITE",
+                        "id": "MANAGER_APPROVALID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Approval",
+                      "scope": "#/properties/CLIENT_APPROVAL",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_APPROVAL",
+                        "entity": "INVITE",
+                        "id": "CLIENT_APPROVALID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Profile Id",
+                      "scope": "#/properties/PROFILE_ID",
+                      "options": {
+                        "allOptionsResourceName": "E_PROFILE",
+                        "valueField": "PROFILE_ID",
+                        "labelField": "PROFILE_ID"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "PROFILE_ID",
+                          "entity": "E_PROFILE"
+                        },
+                        "alias": null,
+                        "attribute": "PROFILE_ID",
+                        "entity": "INVITE",
+                        "id": "PROFILE_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Category Id",
+                      "scope": "#/properties/CATEGORY_ID",
+                      "options": {
+                        "allOptionsResourceName": "TICKET_CATEGORY",
+                        "valueField": "CATEGORY_ID",
+                        "labelField": "CATEGORY_ID"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "CATEGORY_ID",
+                          "entity": "TICKET_CATEGORY"
+                        },
+                        "alias": null,
+                        "attribute": "CATEGORY_ID",
+                        "entity": "INVITE",
+                        "id": "CATEGORY_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Invite Id",
+                      "scope": "#/properties/INVITE_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "INVITE_ID",
+                        "entity": "INVITE",
+                        "id": "INVITE_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Invite",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "EVENT_NAMEID",
+                      "attribute": "EVENT_NAME",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "displayName": "Event Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "EVENT_DATEID",
+                      "attribute": "EVENT_DATE",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "displayName": "Event Date",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "date",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit"
+                      },
+                      "generatedPK": false,
+                      "type": "DATE"
+                    },
+                    {
+                      "id": "EVENT_TIMEID",
+                      "attribute": "EVENT_TIME",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "displayName": "Event Time",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "datetime",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit",
+                        "hour": "2-digit",
+                        "minute": "2-digit",
+                        "second": "2-digit"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "datetime",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit",
+                        "hour": "2-digit",
+                        "minute": "2-digit",
+                        "second": "2-digit"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "datetime",
+                        "format": "Unformatted",
+                        "year": "2-digit",
+                        "month": "2-digit",
+                        "day": "2-digit",
+                        "hour": "2-digit",
+                        "minute": "2-digit",
+                        "second": "2-digit"
+                      },
+                      "generatedPK": false,
+                      "type": "DATETIME"
+                    },
+                    {
+                      "id": "EVENT_RADIUSID",
+                      "attribute": "EVENT_RADIUS",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "displayName": "Event Radius",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 2
+                      },
+                      "generatedPK": false,
+                      "type": "DOUBLE"
+                    },
+                    {
+                      "id": "LOCATION_IDID",
+                      "attribute": "LOCATION_ID",
+                      "alias": null,
+                      "entity": "T_EVENT",
+                      "displayName": "Location Id",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "generatedPK": false,
+                      "type": "LONG"
+                    },
+                    {
+                      "id": "PROFILE_NAMEID",
+                      "attribute": "PROFILE_NAME",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "displayName": "Profile Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "JOB_TITLEID",
+                      "attribute": "JOB_TITLE",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "displayName": "Job Title",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "PROFILE_TYPEID",
+                      "attribute": "PROFILE_TYPE",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "displayName": "Profile Type",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "generatedPK": false,
+                      "type": "ENUM"
+                    },
+                    {
+                      "id": "PREFERENCEID",
+                      "attribute": "PREFERENCE",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "displayName": "Preference",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "generatedPK": false,
+                      "type": "ENUM"
+                    },
+                    {
+                      "id": "CLIENT_APPROVALE_PROFILE_CLIENT_APPROVAL",
+                      "attribute": "CLIENT_APPROVAL",
+                      "alias": "E_PROFILE_CLIENT_APPROVAL",
+                      "entity": "E_PROFILE",
+                      "displayName": "E Profile Client Approval",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "generatedPK": false,
+                      "type": "ENUM"
+                    },
+                    {
+                      "id": "COMPANY_IDID",
+                      "attribute": "COMPANY_ID",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "displayName": "Company Id",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Financial",
+                        "currency": "$ English (US)",
+                        "decimalPlaces": 0
+                      },
+                      "generatedPK": false,
+                      "type": "LONG"
+                    },
+                    {
+                      "id": "CATEGORY_NAMEID",
+                      "attribute": "CATEGORY_NAME",
+                      "alias": null,
+                      "entity": "TICKET_CATEGORY",
+                      "displayName": "Category Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CATEGORY_DESCRIPTIONID",
+                      "attribute": "CATEGORY_DESCRIPTION",
+                      "alias": null,
+                      "entity": "TICKET_CATEGORY",
+                      "displayName": "Category Description",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "EVENT_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "TICKET_COUNT",
+                      "alias": null
+                    },
+                    {
+                      "name": "MANAGER_APPROVAL",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_APPROVAL",
+                      "alias": null
+                    },
+                    {
+                      "name": "PROFILE_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "CATEGORY_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "EVENT_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "EVENT_DATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "EVENT_TIME",
+                      "alias": null
+                    },
+                    {
+                      "name": "EVENT_RADIUS",
+                      "alias": null
+                    },
+                    {
+                      "name": "LOCATION_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "PROFILE_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "JOB_TITLE",
+                      "alias": null
+                    },
+                    {
+                      "name": "PROFILE_TYPE",
+                      "alias": null
+                    },
+                    {
+                      "name": "PREFERENCE",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_APPROVAL",
+                      "alias": "E_PROFILE_CLIENT_APPROVAL"
+                    },
+                    {
+                      "name": "COMPANY_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "CATEGORY_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "CATEGORY_DESCRIPTION",
+                      "alias": null
+                    },
+                    {
+                      "name": "INVITE_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            }
+          ]
+        },
+        {
+          "id": "2afedc7e-8817-4704-89b6-6f92a70a2297",
+          "name": "Network",
+          "layoutType": null,
+          "permissions": null,
+          "tiles": [
+            {
+              "title": "Profiles",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_E_PROFILES",
+                "permissions": {
+                  "updateRight": "EProfileUpdate",
+                  "viewRight": "EProfileView"
+                },
+                "updateEvent": "EVENT_E_PROFILE_MODIFY",
+                "deleteEvent": "EVENT_E_PROFILE_DELETE",
+                "createEvent": "EVENT_E_PROFILE_INSERT",
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": false,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "PROFILE_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "PROFILE_NAME",
+                      "displayName": "Profile Name",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "PROFILE_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "JOB_TITLE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "JOB_TITLE",
+                      "displayName": "Job Title",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "JOB_TITLEID"
+                    }
+                  },
+                  {
+                    "field": "PROFILE_TYPE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "PROFILE_TYPE",
+                      "displayName": "Profile Type",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "PROFILE_TYPEID"
+                    }
+                  },
+                  {
+                    "field": "PREFERENCE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "PREFERENCE",
+                      "displayName": "Preference",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "PREFERENCEID"
+                    }
+                  },
+                  {
+                    "field": "CLIENT_APPROVAL",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "enum"
+                      },
+                      "attribute": "CLIENT_APPROVAL",
+                      "displayName": "Client Approval",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "CLIENT_APPROVALID"
+                    }
+                  },
+                  {
+                    "field": "COMPANY_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COMPANY_NAME",
+                      "displayName": "Company Name",
+                      "alias": null,
+                      "entity": "COMPANY",
+                      "id": "COMPANY_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "STREET",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "STREET",
+                      "displayName": "Street",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "STREETID"
+                    }
+                  },
+                  {
+                    "field": "CITY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CITY",
+                      "displayName": "City",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "CITYID"
+                    }
+                  },
+                  {
+                    "field": "STATE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "STATE",
+                      "displayName": "State",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "STATEID"
+                    }
+                  },
+                  {
+                    "field": "REGION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "REGION",
+                      "displayName": "Region",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "REGIONID"
+                    }
+                  },
+                  {
+                    "field": "COUNTRY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COUNTRY",
+                      "displayName": "Country",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "COUNTRYID"
+                    }
+                  },
+                  {
+                    "field": "ZIPCODE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "ZIPCODE",
+                      "displayName": "Zipcode",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "ZIPCODEID"
+                    }
+                  },
+                  {
+                    "field": "PROFILE_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "PROFILE_ID",
+                      "displayName": "Profile Id",
+                      "alias": null,
+                      "entity": "E_PROFILE",
+                      "id": "PROFILE_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Profile Name",
+                      "scope": "#/properties/PROFILE_NAME",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "PROFILE_NAME",
+                        "entity": "E_PROFILE",
+                        "id": "PROFILE_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Job Title",
+                      "scope": "#/properties/JOB_TITLE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "JOB_TITLE",
+                        "entity": "E_PROFILE",
+                        "id": "JOB_TITLEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Profile Type",
+                      "scope": "#/properties/PROFILE_TYPE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "PROFILE_TYPE",
+                        "entity": "E_PROFILE",
+                        "id": "PROFILE_TYPEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Preference",
+                      "scope": "#/properties/PREFERENCE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "PREFERENCE",
+                        "entity": "E_PROFILE",
+                        "id": "PREFERENCEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Approval",
+                      "scope": "#/properties/CLIENT_APPROVAL",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_APPROVAL",
+                        "entity": "E_PROFILE",
+                        "id": "CLIENT_APPROVALID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Profile Id",
+                      "scope": "#/properties/PROFILE_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "PROFILE_ID",
+                        "entity": "E_PROFILE",
+                        "id": "PROFILE_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Profile Name",
+                      "scope": "#/properties/PROFILE_NAME",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "PROFILE_NAME",
+                        "entity": "E_PROFILE",
+                        "id": "PROFILE_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Job Title",
+                      "scope": "#/properties/JOB_TITLE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "JOB_TITLE",
+                        "entity": "E_PROFILE",
+                        "id": "JOB_TITLEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Profile Type",
+                      "scope": "#/properties/PROFILE_TYPE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "PROFILE_TYPE",
+                        "entity": "E_PROFILE",
+                        "id": "PROFILE_TYPEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Preference",
+                      "scope": "#/properties/PREFERENCE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "PREFERENCE",
+                        "entity": "E_PROFILE",
+                        "id": "PREFERENCEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Client Approval",
+                      "scope": "#/properties/CLIENT_APPROVAL",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "enum"
+                        },
+                        "alias": null,
+                        "attribute": "CLIENT_APPROVAL",
+                        "entity": "E_PROFILE",
+                        "id": "CLIENT_APPROVALID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Profile Id",
+                      "scope": "#/properties/PROFILE_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "PROFILE_ID",
+                        "entity": "E_PROFILE",
+                        "id": "PROFILE_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "E Profile",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [
+                    {
+                      "id": "COMPANY_NAMEID",
+                      "attribute": "COMPANY_NAME",
+                      "alias": null,
+                      "entity": "COMPANY",
+                      "displayName": "Company Name",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "STREETID",
+                      "attribute": "STREET",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "Street",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "CITYID",
+                      "attribute": "CITY",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "City",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "STATEID",
+                      "attribute": "STATE",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "State",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "REGIONID",
+                      "attribute": "REGION",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "Region",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "COUNTRYID",
+                      "attribute": "COUNTRY",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "Country",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    },
+                    {
+                      "id": "ZIPCODEID",
+                      "attribute": "ZIPCODE",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "displayName": "Zipcode",
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "createForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "updateForm": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "generatedPK": false,
+                      "type": "STRING"
+                    }
+                  ],
+                  "configAttrNames": [
+                    {
+                      "name": "PROFILE_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "JOB_TITLE",
+                      "alias": null
+                    },
+                    {
+                      "name": "PROFILE_TYPE",
+                      "alias": null
+                    },
+                    {
+                      "name": "PREFERENCE",
+                      "alias": null
+                    },
+                    {
+                      "name": "CLIENT_APPROVAL",
+                      "alias": null
+                    },
+                    {
+                      "name": "COMPANY_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "STREET",
+                      "alias": null
+                    },
+                    {
+                      "name": "CITY",
+                      "alias": null
+                    },
+                    {
+                      "name": "STATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "REGION",
+                      "alias": null
+                    },
+                    {
+                      "name": "COUNTRY",
+                      "alias": null
+                    },
+                    {
+                      "name": "ZIPCODE",
+                      "alias": null
+                    },
+                    {
+                      "name": "PROFILE_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            }
+          ]
+        },
+        {
+          "id": "b09ea005-b264-401e-8bd5-ec014b4cea46",
+          "name": "Admin",
+          "layoutType": null,
+          "permissions": null,
+          "tiles": [
+            {
+              "title": "Category",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ALL_TICKET_CATEGORYS",
+                "permissions": {
+                  "updateRight": "TicketCategoryUpdate",
+                  "viewRight": "TicketCategoryView"
+                },
+                "updateEvent": "EVENT_TICKET_CATEGORY_MODIFY",
+                "deleteEvent": "EVENT_TICKET_CATEGORY_DELETE",
+                "createEvent": "EVENT_TICKET_CATEGORY_INSERT",
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": false,
+                "columns": [
+                  {
+                    "field": "CATEGORY_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CATEGORY_NAME",
+                      "displayName": "Category Name",
+                      "alias": null,
+                      "entity": "TICKET_CATEGORY",
+                      "id": "CATEGORY_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "CATEGORY_DESCRIPTION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CATEGORY_DESCRIPTION",
+                      "displayName": "Category Description",
+                      "alias": null,
+                      "entity": "TICKET_CATEGORY",
+                      "id": "CATEGORY_DESCRIPTIONID"
+                    }
+                  },
+                  {
+                    "field": "CATEGORY_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "CATEGORY_ID",
+                      "displayName": "Category Id",
+                      "alias": null,
+                      "entity": "TICKET_CATEGORY",
+                      "id": "CATEGORY_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Category Name",
+                      "scope": "#/properties/CATEGORY_NAME",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CATEGORY_NAME",
+                        "entity": "TICKET_CATEGORY",
+                        "id": "CATEGORY_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Category Description",
+                      "scope": "#/properties/CATEGORY_DESCRIPTION",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CATEGORY_DESCRIPTION",
+                        "entity": "TICKET_CATEGORY",
+                        "id": "CATEGORY_DESCRIPTIONID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Category Id",
+                      "scope": "#/properties/CATEGORY_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "CATEGORY_ID",
+                        "entity": "TICKET_CATEGORY",
+                        "id": "CATEGORY_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Category Name",
+                      "scope": "#/properties/CATEGORY_NAME",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CATEGORY_NAME",
+                        "entity": "TICKET_CATEGORY",
+                        "id": "CATEGORY_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Category Description",
+                      "scope": "#/properties/CATEGORY_DESCRIPTION",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CATEGORY_DESCRIPTION",
+                        "entity": "TICKET_CATEGORY",
+                        "id": "CATEGORY_DESCRIPTIONID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Category Id",
+                      "scope": "#/properties/CATEGORY_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "CATEGORY_ID",
+                        "entity": "TICKET_CATEGORY",
+                        "id": "CATEGORY_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Ticket Category",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [],
+                  "configAttrNames": [
+                    {
+                      "name": "CATEGORY_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "CATEGORY_DESCRIPTION",
+                      "alias": null
+                    },
+                    {
+                      "name": "CATEGORY_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            },
+            {
+              "title": "Address",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "ADDRESS",
+                "permissions": {
+                  "updateRight": "AddressUpdate",
+                  "viewRight": "AddressView"
+                },
+                "updateEvent": "EVENT_ADDRESS_MODIFY",
+                "deleteEvent": "EVENT_ADDRESS_DELETE",
+                "createEvent": "EVENT_ADDRESS_INSERT",
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": true,
+                "columns": [
+                  {
+                    "field": "STREET",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "STREET",
+                      "displayName": "Street",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "STREETID"
+                    }
+                  },
+                  {
+                    "field": "CITY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "CITY",
+                      "displayName": "City",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "CITYID"
+                    }
+                  },
+                  {
+                    "field": "STATE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "STATE",
+                      "displayName": "State",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "STATEID"
+                    }
+                  },
+                  {
+                    "field": "REGION",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "REGION",
+                      "displayName": "Region",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "REGIONID"
+                    }
+                  },
+                  {
+                    "field": "COUNTRY",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COUNTRY",
+                      "displayName": "Country",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "COUNTRYID"
+                    }
+                  },
+                  {
+                    "field": "ZIPCODE",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "ZIPCODE",
+                      "displayName": "Zipcode",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "ZIPCODEID"
+                    }
+                  },
+                  {
+                    "field": "ADDRESS_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "ADDRESS_ID",
+                      "displayName": "Address Id",
+                      "alias": null,
+                      "entity": "ADDRESS",
+                      "id": "ADDRESS_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Street",
+                      "scope": "#/properties/STREET",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "STREET",
+                        "entity": "ADDRESS",
+                        "id": "STREETID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "City",
+                      "scope": "#/properties/CITY",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CITY",
+                        "entity": "ADDRESS",
+                        "id": "CITYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "State",
+                      "scope": "#/properties/STATE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "STATE",
+                        "entity": "ADDRESS",
+                        "id": "STATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Region",
+                      "scope": "#/properties/REGION",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "REGION",
+                        "entity": "ADDRESS",
+                        "id": "REGIONID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Country",
+                      "scope": "#/properties/COUNTRY",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COUNTRY",
+                        "entity": "ADDRESS",
+                        "id": "COUNTRYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Zipcode",
+                      "scope": "#/properties/ZIPCODE",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "ZIPCODE",
+                        "entity": "ADDRESS",
+                        "id": "ZIPCODEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Address Id",
+                      "scope": "#/properties/ADDRESS_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "ADDRESS_ID",
+                        "entity": "ADDRESS",
+                        "id": "ADDRESS_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Street",
+                      "scope": "#/properties/STREET",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "STREET",
+                        "entity": "ADDRESS",
+                        "id": "STREETID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "City",
+                      "scope": "#/properties/CITY",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "CITY",
+                        "entity": "ADDRESS",
+                        "id": "CITYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "State",
+                      "scope": "#/properties/STATE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "STATE",
+                        "entity": "ADDRESS",
+                        "id": "STATEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Region",
+                      "scope": "#/properties/REGION",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "REGION",
+                        "entity": "ADDRESS",
+                        "id": "REGIONID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Country",
+                      "scope": "#/properties/COUNTRY",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COUNTRY",
+                        "entity": "ADDRESS",
+                        "id": "COUNTRYID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Zipcode",
+                      "scope": "#/properties/ZIPCODE",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "ZIPCODE",
+                        "entity": "ADDRESS",
+                        "id": "ZIPCODEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Address Id",
+                      "scope": "#/properties/ADDRESS_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "ADDRESS_ID",
+                        "entity": "ADDRESS",
+                        "id": "ADDRESS_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Address",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [],
+                  "configAttrNames": [
+                    {
+                      "name": "STREET",
+                      "alias": null
+                    },
+                    {
+                      "name": "CITY",
+                      "alias": null
+                    },
+                    {
+                      "name": "STATE",
+                      "alias": null
+                    },
+                    {
+                      "name": "REGION",
+                      "alias": null
+                    },
+                    {
+                      "name": "COUNTRY",
+                      "alias": null
+                    },
+                    {
+                      "name": "ZIPCODE",
+                      "alias": null
+                    },
+                    {
+                      "name": "ADDRESS_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            },
+            {
+              "title": "Companies",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "COMPANY",
+                "permissions": {
+                  "updateRight": "CompanyUpdate",
+                  "viewRight": "CompanyView"
+                },
+                "updateEvent": "EVENT_COMPANY_MODIFY",
+                "deleteEvent": "EVENT_COMPANY_DELETE",
+                "createEvent": "EVENT_COMPANY_INSERT",
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": true,
+                "columns": [
+                  {
+                    "field": "COMPANY_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "COMPANY_NAME",
+                      "displayName": "Company Name",
+                      "alias": null,
+                      "entity": "COMPANY",
+                      "id": "COMPANY_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "ADDRESS_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "ADDRESS_ID",
+                      "displayName": "Address Id",
+                      "alias": null,
+                      "entity": "COMPANY",
+                      "id": "ADDRESS_IDID"
+                    }
+                  },
+                  {
+                    "field": "COMPANY_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "COMPANY_ID",
+                      "displayName": "Company Id",
+                      "alias": null,
+                      "entity": "COMPANY",
+                      "id": "COMPANY_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Company Name",
+                      "scope": "#/properties/COMPANY_NAME",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMPANY_NAME",
+                        "entity": "COMPANY",
+                        "id": "COMPANY_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Address Id",
+                      "scope": "#/properties/ADDRESS_ID",
+                      "options": {
+                        "allOptionsResourceName": "ADDRESS",
+                        "valueField": "ADDRESS_ID",
+                        "labelField": "ADDRESS_ID"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "ADDRESS_ID",
+                          "entity": "ADDRESS"
+                        },
+                        "alias": null,
+                        "attribute": "ADDRESS_ID",
+                        "entity": "COMPANY",
+                        "id": "ADDRESS_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Company Id",
+                      "scope": "#/properties/COMPANY_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "COMPANY_ID",
+                        "entity": "COMPANY",
+                        "id": "COMPANY_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Company Name",
+                      "scope": "#/properties/COMPANY_NAME",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "COMPANY_NAME",
+                        "entity": "COMPANY",
+                        "id": "COMPANY_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Address Id",
+                      "scope": "#/properties/ADDRESS_ID",
+                      "options": {
+                        "allOptionsResourceName": "ADDRESS",
+                        "valueField": "ADDRESS_ID",
+                        "labelField": "ADDRESS_ID"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "ADDRESS_ID",
+                          "entity": "ADDRESS"
+                        },
+                        "alias": null,
+                        "attribute": "ADDRESS_ID",
+                        "entity": "COMPANY",
+                        "id": "ADDRESS_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Company Id",
+                      "scope": "#/properties/COMPANY_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "COMPANY_ID",
+                        "entity": "COMPANY",
+                        "id": "COMPANY_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Company",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [],
+                  "configAttrNames": [
+                    {
+                      "name": "COMPANY_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "ADDRESS_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "COMPANY_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            },
+            {
+              "title": "Location",
+              "type": "entity-manager",
+              "config": {
+                "resourceName": "LOCATION",
+                "permissions": {
+                  "updateRight": "LocationUpdate",
+                  "viewRight": "LocationView"
+                },
+                "updateEvent": "EVENT_LOCATION_MODIFY",
+                "deleteEvent": "EVENT_LOCATION_DELETE",
+                "createEvent": "EVENT_LOCATION_INSERT",
+                "modalPosition": "centre",
+                "sizeColumnsToFit": true,
+                "enableSearchBar": true,
+                "reqrep": true,
+                "columns": [
+                  {
+                    "field": "LOCATION_NAME",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "string",
+                        "format": "Input"
+                      },
+                      "attribute": "LOCATION_NAME",
+                      "displayName": "Location Name",
+                      "alias": null,
+                      "entity": "LOCATION",
+                      "id": "LOCATION_NAMEID"
+                    }
+                  },
+                  {
+                    "field": "ADDRESS_ID",
+                    "hide": true,
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "hidden"
+                      },
+                      "attribute": "ADDRESS_ID",
+                      "displayName": "Address Id",
+                      "alias": null,
+                      "entity": "LOCATION",
+                      "id": "ADDRESS_IDID"
+                    }
+                  },
+                  {
+                    "field": "LOCATION_ID",
+                    "meta": {
+                      "gridDisplay": {
+                        "mode": "visible",
+                        "type": "numeric",
+                        "format": "Unformatted",
+                        "decimalPlaces": 0
+                      },
+                      "attribute": "LOCATION_ID",
+                      "displayName": "Location Id",
+                      "alias": null,
+                      "entity": "LOCATION",
+                      "id": "LOCATION_IDID"
+                    }
+                  }
+                ],
+                "createFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Location Name",
+                      "scope": "#/properties/LOCATION_NAME",
+                      "options": {},
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "LOCATION_NAME",
+                        "entity": "LOCATION",
+                        "id": "LOCATION_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Address Id",
+                      "scope": "#/properties/ADDRESS_ID",
+                      "options": {
+                        "allOptionsResourceName": "ADDRESS",
+                        "valueField": "ADDRESS_ID",
+                        "labelField": "ADDRESS_ID"
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "ADDRESS_ID",
+                          "entity": "ADDRESS"
+                        },
+                        "alias": null,
+                        "attribute": "ADDRESS_ID",
+                        "entity": "LOCATION",
+                        "id": "ADDRESS_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Location Id",
+                      "scope": "#/properties/LOCATION_ID",
+                      "options": {
+                        "hidden": true
+                      },
+                      "meta": {
+                        "createForm": {
+                          "mode": "hidden"
+                        },
+                        "alias": null,
+                        "attribute": "LOCATION_ID",
+                        "entity": "LOCATION",
+                        "id": "LOCATION_IDID"
+                      }
+                    }
+                  ]
+                },
+                "updateFormUiSchema": {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "label": "Location Name",
+                      "scope": "#/properties/LOCATION_NAME",
+                      "options": {},
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "string",
+                          "format": "Input"
+                        },
+                        "alias": null,
+                        "attribute": "LOCATION_NAME",
+                        "entity": "LOCATION",
+                        "id": "LOCATION_NAMEID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Address Id",
+                      "scope": "#/properties/ADDRESS_ID",
+                      "options": {
+                        "allOptionsResourceName": "ADDRESS",
+                        "valueField": "ADDRESS_ID",
+                        "labelField": "ADDRESS_ID"
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "visible",
+                          "type": "entity-ref",
+                          "attr": "ADDRESS_ID",
+                          "entity": "ADDRESS"
+                        },
+                        "alias": null,
+                        "attribute": "ADDRESS_ID",
+                        "entity": "LOCATION",
+                        "id": "ADDRESS_IDID"
+                      }
+                    },
+                    {
+                      "type": "Control",
+                      "label": "Location Id",
+                      "scope": "#/properties/LOCATION_ID",
+                      "options": {
+                        "readonly": true
+                      },
+                      "meta": {
+                        "updateForm": {
+                          "mode": "read-only"
+                        },
+                        "alias": null,
+                        "attribute": "LOCATION_ID",
+                        "entity": "LOCATION",
+                        "id": "LOCATION_IDID"
+                      }
+                    }
+                  ]
+                },
+                "entityName": "Location",
+                "meta": {
+                  "inactiveGridConfig": [],
+                  "inactiveFormConfig": [],
+                  "configAttrNames": [
+                    {
+                      "name": "LOCATION_NAME",
+                      "alias": null
+                    },
+                    {
+                      "name": "ADDRESS_ID",
+                      "alias": null
+                    },
+                    {
+                      "name": "LOCATION_ID",
+                      "alias": null
+                    }
+                  ]
+                }
+              },
+              "meta": {}
+            }
+          ]
+        }
+      ],
+      "framework": "web components"
+    },
+    "views": [
+      {
+        "name": "T_EVENT_VIEW",
+        "rootTable": "T_EVENT",
+        "tableAliases": {
+          "T_EVENT": "T_EVENT",
+          "LOCATION": "LOCATION",
+          "ADDRESS": "ADDRESS"
+        },
+        "fields": [
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_DATE",
+            "type": "DATE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_TIME",
+            "type": "DATETIME",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_RADIUS",
+            "type": "DOUBLE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "LOCATION",
+            "sourceField": "LOCATION_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "STREET",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "CITY",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "STATE",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "REGION",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "COUNTRY",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "ZIPCODE",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          }
+        ],
+        "join": {
+          "toTableAlias": "T_EVENT",
+          "links": [
+            {
+              "joinTo": "LOCATION",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "T_EVENT",
+                  "fromField": "LOCATION_ID",
+                  "toTableAlias": "LOCATION",
+                  "toField": "LOCATION_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": {
+                "toTableAlias": "T_EVENT",
+                "links": [
+                  {
+                    "joinTo": "ADDRESS",
+                    "joinLinkType": "FIELD",
+                    "joinType": "OUTER",
+                    "backwardsJoin": true,
+                    "on": [
+                      {
+                        "fromTableAlias": "LOCATION",
+                        "fromField": "ADDRESS_ID",
+                        "toTableAlias": "ADDRESS",
+                        "toField": "ADDRESS_ID",
+                        "joinType": "FIELD",
+                        "meta": {
+                          "entityReverse": false
+                        }
+                      }
+                    ],
+                    "join": null
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "snapshot": true,
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_T_EVENTS",
+            "viewRight": "TEventView",
+            "fields": [
+              "EVENT_ID",
+              "EVENT_NAME",
+              "EVENT_DATE",
+              "EVENT_TIME",
+              "EVENT_RADIUS",
+              "LOCATION_NAME",
+              "STREET",
+              "CITY",
+              "STATE",
+              "REGION",
+              "COUNTRY",
+              "ZIPCODE"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "COMPANY_VIEW",
+        "rootTable": "COMPANY",
+        "tableAliases": {
+          "COMPANY": "COMPANY",
+          "ADDRESS": "ADDRESS"
+        },
+        "fields": [
+          {
+            "tableAlias": "COMPANY",
+            "sourceField": "COMPANY_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "COMPANY",
+            "sourceField": "COMPANY_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "COMPANY",
+            "sourceField": "ADDRESS_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "STREET",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "CITY",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "STATE",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "REGION",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "COUNTRY",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "ZIPCODE",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          }
+        ],
+        "join": {
+          "toTableAlias": "COMPANY",
+          "links": [
+            {
+              "joinTo": "ADDRESS",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "COMPANY",
+                  "fromField": "ADDRESS_ID",
+                  "toTableAlias": "ADDRESS",
+                  "toField": "ADDRESS_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": null
+            }
+          ]
+        },
+        "snapshot": true,
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_COMPANYS",
+            "viewRight": "CompanyView",
+            "fields": [
+              "COMPANY_ID",
+              "COMPANY_NAME",
+              "ADDRESS_ID",
+              "STREET",
+              "CITY",
+              "STATE",
+              "REGION",
+              "COUNTRY",
+              "ZIPCODE"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "E_PROFILE_VIEW",
+        "rootTable": "E_PROFILE",
+        "tableAliases": {
+          "E_PROFILE": "E_PROFILE",
+          "COMPANY": "COMPANY",
+          "ADDRESS": "ADDRESS"
+        },
+        "fields": [
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "PROFILE_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "PROFILE_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "JOB_TITLE",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "PROFILE_TYPE",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "PREFERENCE",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "CLIENT_APPROVAL",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "COMPANY",
+            "sourceField": "COMPANY_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "STREET",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "CITY",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "STATE",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "REGION",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "COUNTRY",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "ADDRESS",
+            "sourceField": "ZIPCODE",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          }
+        ],
+        "join": {
+          "toTableAlias": "E_PROFILE",
+          "links": [
+            {
+              "joinTo": "COMPANY",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "E_PROFILE",
+                  "fromField": "COMPANY_ID",
+                  "toTableAlias": "COMPANY",
+                  "toField": "COMPANY_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": {
+                "toTableAlias": "E_PROFILE",
+                "links": [
+                  {
+                    "joinTo": "ADDRESS",
+                    "joinLinkType": "FIELD",
+                    "joinType": "OUTER",
+                    "backwardsJoin": true,
+                    "on": [
+                      {
+                        "fromTableAlias": "COMPANY",
+                        "fromField": "ADDRESS_ID",
+                        "toTableAlias": "ADDRESS",
+                        "toField": "ADDRESS_ID",
+                        "joinType": "FIELD",
+                        "meta": {
+                          "entityReverse": false
+                        }
+                      }
+                    ],
+                    "join": null
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "snapshot": true,
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_E_PROFILES",
+            "viewRight": "EProfileView",
+            "fields": [
+              "PROFILE_ID",
+              "PROFILE_NAME",
+              "JOB_TITLE",
+              "PROFILE_TYPE",
+              "PREFERENCE",
+              "CLIENT_APPROVAL",
+              "COMPANY_NAME",
+              "STREET",
+              "CITY",
+              "STATE",
+              "REGION",
+              "COUNTRY",
+              "ZIPCODE"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "INVITE_VIEW",
+        "rootTable": "INVITE",
+        "tableAliases": {
+          "INVITE": "INVITE",
+          "T_EVENT": "T_EVENT",
+          "E_PROFILE": "E_PROFILE",
+          "TICKET_CATEGORY": "TICKET_CATEGORY"
+        },
+        "fields": [
+          {
+            "tableAlias": "INVITE",
+            "sourceField": "INVITE_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "INVITE",
+            "sourceField": "EVENT_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "INVITE",
+            "sourceField": "TICKET_COUNT",
+            "type": "INT",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "INVITE",
+            "sourceField": "MANAGER_APPROVAL",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "INVITE",
+            "sourceField": "CLIENT_APPROVAL",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "INVITE",
+            "sourceField": "PROFILE_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "INVITE",
+            "sourceField": "CATEGORY_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_DATE",
+            "type": "DATE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_TIME",
+            "type": "DATETIME",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "EVENT_RADIUS",
+            "type": "DOUBLE",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "T_EVENT",
+            "sourceField": "LOCATION_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "PROFILE_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "JOB_TITLE",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "PROFILE_TYPE",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "PREFERENCE",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "CLIENT_APPROVAL",
+            "type": "ENUM",
+            "viewFieldType": "TABLE",
+            "fieldAlias": "E_PROFILE_CLIENT_APPROVAL"
+          },
+          {
+            "tableAlias": "E_PROFILE",
+            "sourceField": "COMPANY_ID",
+            "type": "LONG",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "TICKET_CATEGORY",
+            "sourceField": "CATEGORY_NAME",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          },
+          {
+            "tableAlias": "TICKET_CATEGORY",
+            "sourceField": "CATEGORY_DESCRIPTION",
+            "type": "STRING",
+            "viewFieldType": "TABLE",
+            "fieldAlias": null
+          }
+        ],
+        "join": {
+          "toTableAlias": "INVITE",
+          "links": [
+            {
+              "joinTo": "T_EVENT",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "INVITE",
+                  "fromField": "EVENT_ID",
+                  "toTableAlias": "T_EVENT",
+                  "toField": "EVENT_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": null
+            },
+            {
+              "joinTo": "E_PROFILE",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "INVITE",
+                  "fromField": "PROFILE_ID",
+                  "toTableAlias": "E_PROFILE",
+                  "toField": "PROFILE_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": null
+            },
+            {
+              "joinTo": "TICKET_CATEGORY",
+              "joinLinkType": "FIELD",
+              "joinType": "OUTER",
+              "backwardsJoin": true,
+              "on": [
+                {
+                  "fromTableAlias": "INVITE",
+                  "fromField": "CATEGORY_ID",
+                  "toTableAlias": "TICKET_CATEGORY",
+                  "toField": "CATEGORY_ID",
+                  "joinType": "FIELD",
+                  "meta": {
+                    "entityReverse": false
+                  }
+                }
+              ],
+              "join": null
+            }
+          ]
+        },
+        "snapshot": true,
+        "realtimeQueries": [
+          {
+            "queryName": "ALL_INVITES",
+            "viewRight": "InviteView",
+            "fields": [
+              "INVITE_ID",
+              "EVENT_ID",
+              "TICKET_COUNT",
+              "MANAGER_APPROVAL",
+              "CLIENT_APPROVAL",
+              "PROFILE_ID",
+              "CATEGORY_ID",
+              "EVENT_NAME",
+              "EVENT_DATE",
+              "EVENT_TIME",
+              "EVENT_RADIUS",
+              "LOCATION_ID",
+              "PROFILE_NAME",
+              "JOB_TITLE",
+              "PROFILE_TYPE",
+              "PREFERENCE",
+              "E_PROFILE_CLIENT_APPROVAL",
+              "COMPANY_ID",
+              "CATEGORY_NAME",
+              "CATEGORY_DESCRIPTION"
+            ]
+          }
+        ]
+      }
+    ],
+    "PBCs": [
+      {
+        "id": "pbc-auth-seed",
+        "config": {}
+      },
+      {
+        "id": "pbc-notify-seed",
+        "config": {
+          "notificationEntities": "[\"T_EVENT\",\"OPPORTUNITY\",\"PROSPECTS\",\"ADDRESS\",\"INVITE\",\"COMPANY\",\"E_PROFILE\",\"LOCATION\",\"TICKET_CATEGORY\",\"T_EVENT_VIEW\",\"COMPANY_VIEW\",\"E_PROFILE_VIEW\",\"INVITE_VIEW\"]"
+        }
+      },
+      {
+        "id": "pbc-reporting-seed",
+        "config": {
+          "reportingQueries": "[\"ALL_T_EVENTS\",\"ALL_COMPANYS\",\"ALL_E_PROFILES\",\"ALL_ADDRESSS\",\"ALL_COMPANIES\",\"ALL_LOCATIONS\",\"ALL_TICKET_CATEGORYS\",\"ALL_INVITES\",\"T_EVENT\",\"T_EVENT_AUDIT\",\"OPPORTUNITY\",\"PROSPECTS\",\"ADDRESS\",\"ADDRESS_AUDIT\",\"INVITE\",\"INVITE_AUDIT\",\"COMPANY\",\"COMPANY_AUDIT\",\"E_PROFILE\",\"E_PROFILE_AUDIT\",\"LOCATION\",\"LOCATION_AUDIT\",\"TICKET_CATEGORY\",\"TICKET_CATEGORY_AUDIT\",\"T_EVENT_VIEW\",\"COMPANY_VIEW\",\"E_PROFILE_VIEW\",\"INVITE_VIEW\"]"
+        }
+      },
+      {
+        "id": "pbc-documents-seed",
+        "config": {}
+      },
+      {
+        "id": "pbc-reconciliation-seed",
+        "config": {}
+      }
+    ],
+    "csv": [
+      {
+        "name": "T_EVENT",
+        "fields": [
+          "EVENT_NAME",
+          "EVENT_DATE",
+          "EVENT_TIME",
+          "EVENT_RADIUS",
+          "LOCATION_ID"
+        ]
+      },
+      {
+        "name": "OPPORTUNITY",
+        "fields": [
+          "STATUS",
+          "EVENT_ID",
+          "FEEDBACK"
+        ]
+      },
+      {
+        "name": "PROSPECTS",
+        "fields": [
+          "EVENT_ID",
+          "STATUS",
+          "FEEDBACK"
+        ]
+      },
+      {
+        "name": "ADDRESS",
+        "fields": [
+          "STREET",
+          "CITY",
+          "STATE",
+          "REGION",
+          "COUNTRY",
+          "ZIPCODE"
+        ]
+      },
+      {
+        "name": "INVITE",
+        "fields": [
+          "EVENT_ID",
+          "TICKET_COUNT",
+          "MANAGER_APPROVAL",
+          "CLIENT_APPROVAL",
+          "PROFILE_ID",
+          "CATEGORY_ID"
+        ]
+      },
+      {
+        "name": "COMPANY",
+        "fields": [
+          "COMPANY_NAME",
+          "ADDRESS_ID"
+        ]
+      },
+      {
+        "name": "E_PROFILE",
+        "fields": [
+          "PROFILE_NAME",
+          "JOB_TITLE",
+          "PROFILE_TYPE",
+          "PREFERENCE",
+          "CLIENT_APPROVAL",
+          "COMPANY_ID"
+        ]
+      },
+      {
+        "name": "LOCATION",
+        "fields": [
+          "LOCATION_NAME",
+          "ADDRESS_ID"
+        ]
+      },
+      {
+        "name": "TICKET_CATEGORY",
+        "fields": [
+          "CATEGORY_NAME",
+          "CATEGORY_DESCRIPTION"
+        ]
+      },
+      {
+        "name": "RIGHT",
+        "fields": [
+          "CODE",
+          "DESCRIPTION"
+        ],
+        "data": [
+          [
+            "TEventView",
+            "T event view"
+          ],
+          [
+            "CompanyView",
+            "Company view"
+          ],
+          [
+            "EProfileView",
+            "E profile view"
+          ],
+          [
+            "AddressView",
+            "Address view"
+          ],
+          [
+            "LocationView",
+            "Location view"
+          ],
+          [
+            "TicketCategoryView",
+            "Ticket category view"
+          ],
+          [
+            "InviteView",
+            "Invite view"
+          ],
+          [
+            "TEventUpdate",
+            "T event update"
+          ],
+          [
+            "OpportunityUpdate",
+            "Opportunity update"
+          ],
+          [
+            "OpportunityView",
+            "Opportunity view"
+          ],
+          [
+            "ProspectsUpdate",
+            "Prospects update"
+          ],
+          [
+            "ProspectsView",
+            "Prospects view"
+          ],
+          [
+            "AddressUpdate",
+            "Address update"
+          ],
+          [
+            "InviteUpdate",
+            "Invite update"
+          ],
+          [
+            "CompanyUpdate",
+            "Company update"
+          ],
+          [
+            "EProfileUpdate",
+            "E profile update"
+          ],
+          [
+            "LocationUpdate",
+            "Location update"
+          ],
+          [
+            "TicketCategoryUpdate",
+            "Ticket category update"
+          ]
+        ]
+      },
+      {
+        "name": "PROFILE",
+        "fields": [
+          "NAME",
+          "DESCRIPTION",
+          "STATUS"
+        ],
+        "data": [
+          [
+            "etm_ADMIN",
+            "Etm admin",
+            "ENABLED"
+          ]
+        ]
+      },
+      {
+        "name": "PROFILE_RIGHT",
+        "fields": [
+          "PROFILE_NAME",
+          "RIGHT_CODE"
+        ],
+        "data": [
+          [
+            "etm_ADMIN",
+            "TEventView"
+          ],
+          [
+            "etm_ADMIN",
+            "CompanyView"
+          ],
+          [
+            "etm_ADMIN",
+            "EProfileView"
+          ],
+          [
+            "etm_ADMIN",
+            "AddressView"
+          ],
+          [
+            "etm_ADMIN",
+            "LocationView"
+          ],
+          [
+            "etm_ADMIN",
+            "TicketCategoryView"
+          ],
+          [
+            "etm_ADMIN",
+            "InviteView"
+          ],
+          [
+            "etm_ADMIN",
+            "TEventUpdate"
+          ],
+          [
+            "etm_ADMIN",
+            "OpportunityUpdate"
+          ],
+          [
+            "etm_ADMIN",
+            "OpportunityView"
+          ],
+          [
+            "etm_ADMIN",
+            "ProspectsUpdate"
+          ],
+          [
+            "etm_ADMIN",
+            "ProspectsView"
+          ],
+          [
+            "etm_ADMIN",
+            "AddressUpdate"
+          ],
+          [
+            "etm_ADMIN",
+            "InviteUpdate"
+          ],
+          [
+            "etm_ADMIN",
+            "CompanyUpdate"
+          ],
+          [
+            "etm_ADMIN",
+            "EProfileUpdate"
+          ],
+          [
+            "etm_ADMIN",
+            "LocationUpdate"
+          ],
+          [
+            "etm_ADMIN",
+            "TicketCategoryUpdate"
+          ]
+        ]
+      },
+      {
+        "name": "PROFILE_USER",
+        "data": [
+          [
+            "etm_ADMIN",
+            "admin"
+          ]
+        ],
+        "mode": "append"
+      }
+    ],
+    "userOverrides": null,
+    "deliveryConfig": null,
+    "telemetry": null
+  }
+}
