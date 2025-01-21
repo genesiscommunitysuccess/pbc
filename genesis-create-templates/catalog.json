@@ -33,5 +33,12 @@
         "repo": "genesiscommunitysuccess/pbc",
         "branch": "main",
         "fileLocation": "genesis-create-templates/one-to-many-Create-Template.json"
+    },
+    {
+        "name": "etm - Entertainment Ticket Manager",
+        "description": "A template application for providing a capability to manage events and associated invites",
+        "repo": "genesiscommunitysuccess/pbc",
+        "branch": "main",
+        "fileLocation": "genesis-create-templates/etm-Create-Template.json"
     }
 ]
